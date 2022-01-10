@@ -11,6 +11,7 @@ var focusMode = require('focusMode.js')
 var places = require('places/places.js')
 var contentBlockingToggle = require('navbar/contentBlockingToggle.js')
 var taskOverlay = require('taskOverlay/taskOverlay.js')
+var tabBar = require('navbar/tabBar.js')
 var bookmarkConverter = require('bookmarkConverter.js')
 
 function initialize () {
@@ -29,6 +30,20 @@ function initialize () {
     isAction: true,
     fn: function (text) {
       webviews.callAsync(tabs.getSelected(), 'goBack')
+    }
+  })
+
+  bangsPlugin.registerCustomBang({
+    phrase: '!sort',
+    snippet: 'Sort Tabs by time',
+    isAction: true,
+    fn: function (text) {
+      tabs.tabs = tabs.tabs.sort(function (a, b) { 
+        return b.lastActivity < a.lastActivity ?  1 // if b should come earlier, push a to end
+             : b.lastActivity > a.lastActivity ? -1 // if b should come later, push a to begin
+             : 0;                   // a and b are equal
+        }).reverse();
+      tabBar.updateAll()
     }
   })
 
