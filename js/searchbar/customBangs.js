@@ -135,27 +135,35 @@ function initialize () {
   bangsPlugin.registerCustomBang({
     phrase: '!savetask',
     snippet: 'Save the current task to file',
-    isAction: false,
-    fn: function (text) {
-      var fileName = tasks.get(tasks.getSelected()).name
-      fileName = (fileName) ? fileName : 'Untitled Task'
+    isAction: true,
+    fn: async function (text) {
       
+      var selectedTask
+      if (tasks.getSelected()) {
+        selectedTask = tasks.getSelected()
+      } else {
+        selectedTask = tasks.byIndex(0)
+      }
+      
+      var taskName = l('defaultTaskName').replace('%n', tasks.getIndex(selectedTask.id) + 1)
+      fileName = (selectedTask.name) ? selectedTask.name : taskName
+
       var savePath = await ipc.invoke('showSaveDialog', { 
         title: 'Save current task to file',
-        message: "Saving this file task will give you the task data in a file.",
+        message: "Save current task to file",
         defaultPath: fileName + '.min',
         filters: {name:'Min File', extensions:['min']}
       })
-      
-      if (savePath.cancelled) {
+
+      if (!savePath) { // savePath.cancelled is avail in later versions of electron
         return
       }
 
-      tasks.get(tasks.getSelected())['filePath'] = savePath.filePath
+      selectedTask['filePath'] = savePath // savePath.filePath is avail in later versions of electron
     
-      var stringData = JSON.stringify(tasks.get(tasks.getSelected()))
+      var stringData = JSON.stringify(Object.assign({}, selectedTask, { tabs: selectedTask.tabs.getStringifyableState() })) // might be better to refactor to task.getStringifyableState()
   
-      require('fs').writeFileSync(savePath.filePath, stringData)
+      require('fs').writeFileSync(savePath, stringData)
       
     }
   })

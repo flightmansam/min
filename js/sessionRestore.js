@@ -26,7 +26,7 @@ const sessionRestore = {
       // if task has a filePath attribute then replace with filepath
       if ('filePath' in data.state.tasks[i]){
         taskStringData.push(data.state.tasks[i])
-        data.state.tasks[i] = data.state.tasks[i].filepath
+        data.state.tasks[i] = data.state.tasks[i].filePath
       }
 
     }
