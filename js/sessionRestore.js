@@ -16,10 +16,19 @@ const sessionRestore = {
 
     // save all tabs that aren't private
 
+    var taskStringData = []
+
     for (var i = 0; i < data.state.tasks.length; i++) {
       data.state.tasks[i].tabs = data.state.tasks[i].tabs.filter(function (tab) {
         return !tab.private
       })
+
+      // if task has a filePath attribute then replace with filepath
+      if ('filePath' in data.state.tasks[i]){
+        taskStringData.push(data.state.tasks[i])
+        data.state.tasks[i] = data.state.tasks[i].filepath
+      }
+
     }
 
     if (forceSave === true || stateString !== sessionRestore.previousState) {
@@ -32,6 +41,19 @@ const sessionRestore = {
           }
         })
       }
+
+      taskStringData.forEach(function (task) {
+        if (sync === true) {
+          fs.writeFileSync(task.filePath, JSON.stringify(task))
+        } else {
+          fs.writeFile(task.filePath, JSON.stringify(task), function (err) {
+            if (err) {
+              console.warn(err)
+            }
+          })
+        }
+      })
+
       sessionRestore.previousState = stateString
     }
   },
@@ -80,6 +102,24 @@ const sessionRestore = {
       // add the saved tasks
 
       data.state.tasks.forEach(function (task) {
+        
+        // if task is a string and filepath 
+        if (Object.prototype.toString.call(task) === "[object String]"){
+          if (fs.existsSync(task)){
+            var taskStringData
+            try {
+              taskStringData = fs.readFileSync(task, 'utf-8')
+            } catch (e) {
+              console.warn('failed to read task restore data', e)
+            } 
+            
+            task = JSON.parse(taskStringData)
+          
+          } else {
+            console.warn('invalid task restore filepath')
+          }
+        }
+
         // restore the task item
         tasks.add(task)
 
