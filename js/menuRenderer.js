@@ -96,6 +96,43 @@ module.exports = {
       })
     })
 
+    ipc.on('openTaskFile', function (e, file) {
+
+      if ('filePath' in file) {
+        
+        // TODO: guard against any random json being added (i.e. must have the required keys)
+
+        if (fs.existsSync(file.filePath)){
+          var taskStringData
+          try {
+            taskStringData = fs.readFileSync(file.filePath, 'utf-8')
+          } catch (e) {
+            console.warn('failed to read task file data', e)
+          } 
+          
+          var task = JSON.parse(taskStringData)
+
+          if (!tasks.get(task.id)){
+            // restore the task item
+            tasks.add(task)
+          }
+          
+          /*
+          If the task contained only private tabs, none of the tabs will be contained in the session restore data, but tasks must always have at least 1 tab, so create a new empty tab if the task doesn't have any.
+          */
+          if (task.tabs.length === 0) {
+            tasks.get(task.id).tabs.add()
+          }
+
+          tasks.setSelected(task.id)
+          browserUI.switchToTask(task.id)
+        
+        } else {
+          console.warn('invalid task restore filepath')
+        }
+      }
+    })
+
     ipc.on('saveCurrentPage', async function () {
       var currentTab = tabs.get(tabs.getSelected())
 

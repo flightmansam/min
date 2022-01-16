@@ -40,6 +40,10 @@ class TaskList {
       id: task.id || String(TaskList.getRandomId())
     }
 
+    if ('filePath' in task){
+      newTask.filePath = task.filePath
+    }
+
     if (index) {
       this.tasks.splice(index, 0, newTask)
     } else {

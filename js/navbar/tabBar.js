@@ -270,10 +270,17 @@ tabBar.container.addEventListener('dragover', e => e.preventDefault())
 tabBar.container.addEventListener('drop', e => {
   e.preventDefault()
   var data = e.dataTransfer
-  require('browserUI.js').addTab(tabs.add({
-    url: data.files[0] ? 'file://' + data.files[0].path : data.getData('text'),
-    private: tabs.get(tabs.getSelected()).private
-  }), { enterEditMode: false, openInBackground: !settings.get('openTabsInForeground') })
+
+  if (/\.(min)$/.test(data.files[0].path) ) {
+    ipc.send('openTaskFile', {
+      filePath: data.files[0].path // could refactor out the ipc and call openTaskFile as a function, but keeping this for now
+    })
+  } else {
+    require('browserUI.js').addTab(tabs.add({
+      url: data.files[0] ? 'file://' + data.files[0].path : data.getData('text'),
+      private: tabs.get(tabs.getSelected()).private
+    }), { enterEditMode: false, openInBackground: !settings.get('openTabsInForeground') })
+}
 })
 
 module.exports = tabBar

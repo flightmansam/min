@@ -155,11 +155,11 @@ function initialize () {
         filters: {name:'Min File', extensions:['min']}
       })
 
-      if (!savePath) { // savePath.cancelled is avail in later versions of electron
+      if (!savePath) { 
         return
       }
 
-      selectedTask['filePath'] = savePath // savePath.filePath is avail in later versions of electron
+      selectedTask['filePath'] = savePath 
     
       var stringData = JSON.stringify(Object.assign({}, selectedTask, { tabs: selectedTask.tabs.getStringifyableState() })) // might be better to refactor to task.getStringifyableState()
   
