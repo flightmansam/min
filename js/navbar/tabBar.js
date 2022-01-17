@@ -272,7 +272,7 @@ tabBar.container.addEventListener('drop', e => {
   var data = e.dataTransfer
 
   if (/\.(min)$/.test(data.files[0].path) ) {
-    ipc.send('openTaskFile', {
+    ipc.emit('openTaskFile', {
       filePath: data.files[0].path // could refactor out the ipc and call openTaskFile as a function, but keeping this for now
     })
   } else {

@@ -98,6 +98,10 @@ module.exports = {
 
     ipc.on('openTaskFile', function (e, file) {
 
+      if (!file){
+        file = e // in case this came from an emit call rather than a send (this is probs bad TODO: refactor out the openTaskFunction)
+      }
+
       if ('filePath' in file) {
         
         // TODO: guard against any random json being added (i.e. must have the required keys)
