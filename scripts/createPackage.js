@@ -55,9 +55,6 @@ var platformOptions = {
     protocols: [{
       name: 'HTTP link',
       schemes: ['http', 'https']
-    }, {
-      name: 'File',
-      schemes: ['file']
     }]
   },
   darwinArm: {
@@ -68,9 +65,6 @@ var platformOptions = {
     protocols: [{
       name: 'HTTP link',
       schemes: ['http', 'https']
-    }, {
-      name: 'File',
-      schemes: ['file']
     }]
   },
   win32: {

@@ -133,6 +133,42 @@ function initialize () {
   })
 
   bangsPlugin.registerCustomBang({
+    phrase: '!savetask',
+    snippet: 'Save the current task to file',
+    isAction: true,
+    fn: async function (text) {
+      
+      var selectedTask
+      if (tasks.getSelected()) {
+        selectedTask = tasks.getSelected()
+      } else {
+        selectedTask = tasks.byIndex(0)
+      }
+      
+      var taskName = l('defaultTaskName').replace('%n', tasks.getIndex(selectedTask.id) + 1)
+      fileName = (selectedTask.name) ? selectedTask.name : taskName
+
+      var savePath = await ipc.invoke('showSaveDialog', { 
+        title: 'Save current task to file',
+        message: "Save current task to file",
+        defaultPath: fileName + '.min',
+        filters: {name:'Min File', extensions:['min']}
+      })
+
+      if (!savePath) { 
+        return
+      }
+
+      selectedTask['filePath'] = savePath 
+    
+      var stringData = JSON.stringify(Object.assign({}, selectedTask, { tabs: selectedTask.tabs.getStringifyableState() })) // might be better to refactor to task.getStringifyableState()
+  
+      require('fs').writeFileSync(savePath, stringData)
+      
+    }
+  })
+
+  bangsPlugin.registerCustomBang({
     phrase: '!newtask',
     snippet: l('createTask'),
     isAction: true,

@@ -117,6 +117,10 @@ function handleCommandLineArguments (argv) {
           sendIPCToWindow(mainWindow, 'addTab', {
             url: arg
           })
+        } else if (/\.(min)$/.test(arg) && fs.existsSync(arg)) {
+          sendIPCToWindow(mainWindow, 'openTaskFile', {
+            filePath: path.resolve(arg) // TODO: need to test on windows, linux
+          })
         } else if (/\.(m?ht(ml)?|pdf)$/.test(arg) && fs.existsSync(arg)) {
           // local files (.html, .mht, mhtml, .pdf)
           sendIPCToWindow(mainWindow, 'addTab', {
@@ -321,7 +325,7 @@ app.on('ready', function () {
   if (isInstallerRunning) {
     return
   }
-
+  
   createWindow(function () {
     mainWindow.webContents.on('did-finish-load', function () {
       // if a URL was passed as a command line argument (probably because Min is set as the default browser on Linux), open it.
@@ -335,6 +339,15 @@ app.on('ready', function () {
         })
         global.URLToOpen = null
       }
+
+      // there is a FILE from an "open-file" event (on Mac)
+      if (global.TaskToOpen) {
+        // if there is a previously set FILE to open (probably from opening a link on macOS), open it
+        sendIPCToWindow(mainWindow, 'openTaskFile', {
+          filePath: global.TaskToOpen 
+        })
+        global.TaskToOpen = null
+      }
     })
   })
 
@@ -343,15 +356,51 @@ app.on('ready', function () {
   createDockMenu()
 })
 
-app.on('open-url', function (e, url) {
-  if (appIsReady) {
-    sendIPCToWindow(mainWindow, 'addTab', {
-      url: url
-    })
-  } else {
-    global.URLToOpen = url // this will be handled later in the createWindow callback
-  }
+app.on('will-finish-launching', function () {
+  registerMacListeners()
 })
+
+function registerMacListeners() {
+  
+  app.on('open-url', function (event, url) {
+    if (appIsReady) {
+      sendIPCToWindow(mainWindow, 'addTab', {
+        url: url
+      })
+    } else {
+      global.URLToOpen = url // this will be handled later in the createWindow callback
+    }
+  })
+  
+  app.on('open-file', function (event, file) {
+    if (event){
+      event.preventDefault()
+    }
+    
+    /* mac only, for windows see handleCommandLineArguments() */
+    if (/\.(min)$/.test(file.toLowerCase()) && fs.existsSync(file)) {
+      if (appIsReady) {
+        sendIPCToWindow(mainWindow, 'openTaskFile', {
+          filePath: file // TODO: need to test on windows, linux
+        })
+      } else {
+        global.TaskToOpen = file
+      }
+    } else if (/\.(m?ht(ml)?|pdf)$/.test(file.toLowerCase()) && fs.existsSync(file)) {
+      // local files (.html, .mht, mhtml, .pdf)
+      if (appIsReady) {
+        sendIPCToWindow(mainWindow, 'addTab', {
+          url: 'file://' + path.resolve(file)
+        })
+      } else {
+        global.URLToOpen = 'file://' + path.resolve(file)
+      }
+    } else {
+      console.warn("Couldn't open file with Min")
+    }       
+  })
+}
+
 
 app.on('second-instance', function (e, argv, workingDir) {
   if (mainWindow) {
