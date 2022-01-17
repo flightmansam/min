@@ -2,6 +2,8 @@ var browserUI = require('browserUI.js')
 var searchbarUtils = require('searchbar/searchbarUtils.js')
 var urlParser = require('util/urlParser.js')
 var searchEngine = require('util/searchEngine.js')
+var sessionRestore = require('../sessionRestore')
+const TaskList = require('../tabState/task')
 
 const faviconMinimumLuminance = 70 // minimum brightness for a "light" favicon
 
@@ -89,13 +91,55 @@ var TaskOverlayBuilder = {
         })
         return input
       },
+      filePathText: function (task) {
+        var text = document.createElement('span')
+        text.className = 'filepath-text'
+        text.textContent = task.filePath.substring(0, 1000)
+        setText = function (text) {
+          text.textContent = text.substring(0, 1000)
+        }
+        return text
+      },
       deleteButton: function (container, task) {
         var deleteButton = document.createElement('button')
         deleteButton.className = 'task-delete-button i carbon:trash-can'
+        deleteButton.title = 'Delete this task'
         deleteButton.tabIndex = -1 // needed for keyboardNavigationHelper
 
+        isMetaCtrl_filePath = function (e) {
+          if (window.platformType === "mac") {
+            return e.metaKey && 'filePath' in task
+          } else {
+            return e.ctrlKey && 'filePath' in task
+          } 
+        }
+
+        handleMouseEvent = function (e) {
+          if (isMetaCtrl_filePath(e)){
+              deleteButton.className = 'task-delete-button i carbon:unlink'
+              deleteButton.title = 'Unlink this task from file'
+          } else {
+            deleteButton.className = 'task-delete-button i carbon:trash-can'
+            deleteButton.title = 'Delete this task'
+          }
+        }
+        
+        deleteButton.addEventListener('mousemove', handleMouseEvent)
+        deleteButton.addEventListener('mouseover', handleMouseEvent)
+
+        deleteButton.addEventListener('mouseleave', function (e) {
+          deleteButton.className = 'task-delete-button i carbon:trash-can'
+          deleteButton.title = 'Delete this task'
+        })
+
         deleteButton.addEventListener('click', function (e) {
-          if (task.tabs.isEmpty()) {
+          if (isMetaCtrl_filePath(e)){
+            delete task.filePath
+            task.id = String(TaskList.getRandomId())
+            browserUI.switchToTask(task.id)
+            document.getElementsByClassName('filepath-text')[0].textContent = ''
+            sessionRestore.save()
+          } else if (task.tabs.isEmpty()) {
             container.remove()
             browserUI.closeTask(task.id)
           } else {
@@ -136,6 +180,11 @@ var TaskOverlayBuilder = {
         // add the input for the task name
         var input = this.nameInputField(task, taskIndex)
         taskActionContainer.appendChild(input)
+
+        if (task.filePath){
+          var filePathText = this.filePathText(task)
+          taskActionContainer.appendChild(filePathText)
+        }
 
         // add the delete button
         var deleteButton = this.deleteButton(taskContainer, task)

@@ -191,6 +191,19 @@ body:not(.touch)
   display: none;
 }
 
+.task-action-container .filepath-text {
+  display: inline-block;
+  opacity: 0.66;
+  font-size: 0.95em;
+  overflow: hidden;
+  vertical-align: middle;
+  max-width: 70%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-height: 2em;
+  margin: calc((1/0.95)*1.2*0.5em) calc((1/0.95)*1.2*0.75em) calc((1/0.95)*1.2*0.5em) calc((1/0.95)*1.2*0.5em);
+}
+
 /* inputs */
 
 .task-name {
