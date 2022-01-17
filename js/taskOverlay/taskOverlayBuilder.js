@@ -106,7 +106,7 @@ var TaskOverlayBuilder = {
         deleteButton.title = 'Delete this task'
         deleteButton.tabIndex = -1 // needed for keyboardNavigationHelper
 
-        isMetaCtrl_filePath = function (e) {
+        isMetaCtrl_filePath = function (e, task) {
           if (window.platformType === "mac") {
             return e.metaKey && 'filePath' in task
           } else {
@@ -115,7 +115,7 @@ var TaskOverlayBuilder = {
         }
 
         handleMouseEvent = function (e) {
-          if (isMetaCtrl_filePath(e)){
+          if (isMetaCtrl_filePath(e, task)){
               deleteButton.className = 'task-delete-button i carbon:unlink'
               deleteButton.title = 'Unlink this task from file'
           } else {
@@ -133,7 +133,7 @@ var TaskOverlayBuilder = {
         })
 
         deleteButton.addEventListener('click', function (e) {
-          if (isMetaCtrl_filePath(e)){
+          if (isMetaCtrl_filePath(e, task)){
             delete task.filePath
             task.id = String(TaskList.getRandomId())
             browserUI.switchToTask(task.id)
