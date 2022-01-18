@@ -137,7 +137,7 @@ var TaskOverlayBuilder = {
             delete task.filePath
             task.id = String(TaskList.getRandomId())
             browserUI.switchToTask(task.id)
-            document.getElementsByClassName('filepath-text')[0].textContent = ''
+            container.getElementsByClassName('filepath-text')[0].textContent = ''
             sessionRestore.save()
           } else if (task.tabs.isEmpty()) {
             container.remove()
