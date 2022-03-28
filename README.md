@@ -17,9 +17,9 @@ Download Min from the [releases page](https://github.com/minbrowser/min/releases
 
 Min is made possible by these sponsors:
 
-| [<img src="https://avatars3.githubusercontent.com/u/17785839?s=400&v=4" width="40">](https://github.com/ritterob) | [<img src="https://avatars.githubusercontent.com/u/6592155?s=460&v=4" width="40">](https://github.com/blackgwe) | [<img src="https://avatars.githubusercontent.com/u/33535850?v=4" width="40">](https://github.com/jonathanhuston) | [<img src="https://avatars.githubusercontent.com/u/74563788?v=4" width="40">](https://github.com/JackGFuller) | [<img src="https://avatars.githubusercontent.com/u/34013162?v=4" width="40">](https://github.com/flightmansam) |     |
-| ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |  --- |
-| [@ritterob](https://github.com/ritterob)                                                                          | [@blackgwe](https://github.com/blackgwe)                                                                        | [@jonathanhuston](https://github.com/jonathanhuston)                                                                        | [@JackGFuller](https://github.com/JackGFuller)                                                                              | [@flightmansam](https://github.com/flightmansam)                                                                              ||
+| [<img src="https://avatars3.githubusercontent.com/u/17785839?s=400&v=4" width="40">](https://github.com/ritterob) | [<img src="https://avatars.githubusercontent.com/u/6592155?s=460&v=4" width="40">](https://github.com/blackgwe) | [<img src="https://avatars.githubusercontent.com/u/33535850?v=4" width="40">](https://github.com/jonathanhuston) | [<img src="https://avatars.githubusercontent.com/u/74563788?v=4" width="40">](https://github.com/JackGFuller) | [<img src="https://avatars.githubusercontent.com/u/34013162?v=4" width="40">](https://github.com/flightmansam) | [<img src="https://avatars.githubusercontent.com/u/15688153?v=4" width="40">](https://github.com/dyogurt) |     |
+| ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |  --- |
+| [@ritterob](https://github.com/ritterob)                                                                          | [@blackgwe](https://github.com/blackgwe)                                                                        | [@jonathanhuston](https://github.com/jonathanhuston)                                                                        | [@JackGFuller](https://github.com/JackGFuller)                                                                              | [@flightmansam](https://github.com/flightmansam)                                                                              | [@dyogurt](https://github.com/dyogurt)                                                                              ||
 
 [Become a sponsor](https://github.com/sponsors/PalmerAL)
 
@@ -39,6 +39,7 @@ You can find prebuilt binaries for Min [here](https://github.com/minbrowser/min/
 
 - To install the .deb file, use `sudo dpkg -i /path/to/download`
 - To install the RPM build, use `sudo rpm -i /path/to/download --ignoreos`
+- On Arch Linux it's in the community repository, use `sudo pacman -Sy min`
 - On Raspberry Pi, you can install Min from [Pi-Apps](https://github.com/Botspot/pi-apps).
 
 ## Developing
@@ -58,8 +59,8 @@ In order to build Min from source, follow the installation instructions above, t
 - `npm run buildMacIntel`
 - `npm run buildMacArm`
 - `npm run buildDebian`
-- `npm run buildRaspi` (for Raspberry Pi, Raspberry Pi OS)
-- `npm run buildLinuxArm64`
+- `npm run buildRaspi` (for 32-bit Raspberry Pi)
+- `npm run buildLinuxArm64` (for 64-bit Raspberry Pi or other ARM Linux)
 - `npm run buildRedhat`
 
 Depending on the platform you are building for, you may need to install additional dependencies:

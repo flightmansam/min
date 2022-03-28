@@ -24,7 +24,7 @@ const ignoredDirs = [
   'localization/',
   // parts of modules that aren't needed
   'node_modules/@types/',
-  'node_modules/pdfjs-dist/es5',
+  'node_modules/pdfjs-dist/legacy',
   'node_modules/pdfjs-dist/lib',
   /node_modules\/[^/\n]+\/test\//g
 ]
@@ -55,7 +55,11 @@ var platformOptions = {
     protocols: [{
       name: 'HTTP link',
       schemes: ['http', 'https']
-    }]
+    }, {
+      name: 'File',
+      schemes: ['file']
+    }],
+    extendInfo: 'scripts/macInfo.plist'
   },
   darwinArm: {
     platform: 'darwin',
@@ -65,7 +69,11 @@ var platformOptions = {
     protocols: [{
       name: 'HTTP link',
       schemes: ['http', 'https']
-    }]
+    }, {
+      name: 'File',
+      schemes: ['file']
+    }],
+    extendInfo: 'scripts/macInfo.plist'
   },
   win32: {
     arch: 'all',
