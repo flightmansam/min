@@ -233,12 +233,18 @@ body.windows.dark-theme .navbar-action-button:not(:disabled):hover {
 }
 .navbar-right-actions {
   margin-right: 2.3em;
+  display: flex;
+  align-items: center;
 }
 
 .navbar-right-actions #add-tab-button {
   padding: 0;
   width: 36px;
   font-size: 1.6em !important;
+}
+
+.navbar-right-actions #task-name-text {
+  text-anchor: middle;
 }
 
 /* audio button */
