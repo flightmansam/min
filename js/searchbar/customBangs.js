@@ -11,6 +11,7 @@ var focusMode = require('focusMode.js')
 var places = require('places/places.js')
 var contentBlockingToggle = require('navbar/contentBlockingToggle.js')
 var taskOverlay = require('taskOverlay/taskOverlay.js')
+var taskNameDisplay = require('navbar/taskNameDisplay.js')
 var tabBar = require('navbar/tabBar.js')
 var bookmarkConverter = require('bookmarkConverter.js')
 
@@ -265,6 +266,7 @@ function initialize () {
     isAction: false,
     fn: function (text) {
       tasks.getSelected().name = text
+      taskNameDisplay.update()
     }
   })
 

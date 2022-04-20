@@ -8,6 +8,7 @@ var settings = require('util/settings/settings.js')
 var webviews = require('webviews.js')
 var focusMode = require('focusMode.js')
 var tabBar = require('navbar/tabBar.js')
+var taskNameDisplay = require('navbar/taskNameDisplay.js')
 var tabEditor = require('navbar/tabEditor.js')
 var searchbar = require('searchbar/searchbar.js')
 
@@ -161,6 +162,9 @@ function switchToTask (id) {
   } else {
     addTab()
   }
+
+  taskNameDisplay.update()
+
 }
 
 /* switches to a tab - update the webview, state, tabstrip, etc. */
