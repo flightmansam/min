@@ -247,6 +247,11 @@ body.windows.dark-theme .navbar-action-button:not(:disabled):hover {
   text-anchor: middle;
 }
 
+body.is-focus-mode .navbar-right-actions #task-name-text{
+  margin-left: 2.3em;
+  visibility: hidden;
+}
+
 /* audio button */
 .tab-item .tab-audio-button {
   vertical-align: text-bottom;
