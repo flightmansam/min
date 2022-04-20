@@ -180,14 +180,12 @@ function initialize () {
         return
       }
 
-      taskOverlay.show()
+      browserUI.addTask()
+      if (text) {
+        tasks.getSelected().name = text
+      }
 
-      setTimeout(function () {
-        browserUI.addTask()
-        if (text) {
-          tasks.getSelected().name = text
-        }
-      }, 600)
+      browserUI.switchToTask(tasks.getSelected().id)
     }
   })
 
