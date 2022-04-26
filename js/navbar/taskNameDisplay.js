@@ -7,13 +7,7 @@ function initialize () {
 }
 
 function update (){
-  if (tasks.getSelected().name) {
-    taskNameText.innerText = tasks.getSelected().name
-  }
-  else {
-    taskNameText.innerText = l('defaultTaskName').replace('%n', tasks.getIndex(tasks.getSelected().id) + 1)
-  }
-
+  taskNameText.innerText = tasks.getPrintedName(tasks.getSelected().id)
 }
 
 module.exports = { initialize, update }

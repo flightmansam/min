@@ -82,6 +82,21 @@ class TaskList {
     return this.tasks.findIndex(task => task.id === id)
   }
 
+  getPrintedName (id) {
+    const task = this.get(id)
+    if (task) {
+      return task.name ? task.name : l('defaultTaskName').replace('%n', this.getIndex(task.id) + 1)
+    }
+    //else
+    return null
+  }
+
+  // returns a task with the same name or index ("1" returns the first task, etc.)
+  getTaskByNameOrNumber (text) {
+    const textAsNumber = parseInt(text)
+    return this.find((task, index) => (task.name && task.name.toLowerCase() === text) || index + 1 === textAsNumber)
+}
+
   setSelected (id) {
     this.selected = id
     window.tabs = this.get(id).tabs

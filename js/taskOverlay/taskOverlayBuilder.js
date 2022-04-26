@@ -68,10 +68,10 @@ var TaskOverlayBuilder = {
         input.classList.add('task-name')
         input.classList.add('mousetrap')
 
-        var taskName = l('defaultTaskName').replace('%n', taskIndex + 1)
+        var taskName = tasks.getPrintedName(task.id)
 
         input.placeholder = taskName
-        input.value = task.name || taskName
+        input.value = taskName
         input.spellcheck = false
 
         input.addEventListener('keyup', function (e) {
