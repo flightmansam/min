@@ -197,6 +197,13 @@ function buildAppMenu (options = {}) {
           role: 'copy'
         },
         {
+          label: l('appMenuCopyURL'),
+          accelerator: 'Shift+CmdOrCtrl+C',
+          click: function (item, window) {
+            sendIPCToWindow(window, 'copyTabURL')
+          }
+        },
+        {
           label: l('appMenuPaste'),
           accelerator: 'CmdOrCtrl+V',
           role: 'paste'

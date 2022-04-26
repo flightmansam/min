@@ -191,6 +191,7 @@
     "appMenuRedo": "Redo",
     "appMenuCut": "Cut",
     "appMenuCopy": "Copy",
+    "appMenuCopyURL": "Copy Tab URL",
     "appMenuPaste": "Paste",
     "appMenuSelectAll": "Select All",
     "appMenuFind": "Find",
