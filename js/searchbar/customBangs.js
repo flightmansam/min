@@ -14,6 +14,80 @@ var taskOverlay = require('taskOverlay/taskOverlay.js')
 var taskNameDisplay = require('navbar/taskNameDisplay.js')
 var tabBar = require('navbar/tabBar.js')
 var bookmarkConverter = require('bookmarkConverter.js')
+var searchbarPlugins = require('searchbar/searchbarPlugins.js')
+var tabEditor = require('navbar/tabEditor.js')
+
+function moveToTask(text) {
+  /* disabled in focus mode */
+    if (focusMode.enabled()) {
+      focusMode.warn()
+      return
+    }
+
+    // remove the tab from the current task
+
+    var currentTab = tabs.get(tabs.getSelected())
+    tabs.destroy(currentTab.id)
+
+    // make sure the task has at least one tab in it
+    if (tabs.count() === 0) {
+      tabs.add()
+    }
+
+    var newTask = getTaskByNameOrNumber(text.toLowerCase())
+
+    if (newTask) {
+      newTask.tabs.add(currentTab, { atEnd: true })
+    } else {
+    // create a new task with the given name
+      newTask = tasks.get(tasks.add(undefined, tasks.getIndex(tasks.getSelected().id) + 1))
+      newTask.name = text
+
+      newTask.tabs.add(currentTab)
+    }
+
+    browserUI.switchToTask(newTask.id)
+    browserUI.switchToTab(currentTab.id)
+
+    
+    taskOverlay.show()
+
+    setTimeout(function () {
+      taskOverlay.hide()
+    }, 600)
+}
+
+function switchToTask (text) {
+/* disabled in focus mode */
+  if (focusMode.enabled()) {
+    focusMode.warn()
+    return
+  }
+
+  text = text.toLowerCase()
+
+  // no task was specified, show all of the tasks
+  if (!text) {
+    taskOverlay.show()
+    return
+  }
+
+  var task = getTaskByNameOrNumber(text)
+
+  if (task) {
+    browserUI.switchToTask(task.id)
+  }
+}
+
+// returns a task with the same name or index ("1" returns the first task, etc.)
+// In future PR move this to task.js
+function getTaskByNameOrNumber (text) {
+  const textAsNumber = parseInt(text)
+
+  return tasks.find((task, index) => (task.name && task.name.toLowerCase() === text) || index + 1 === textAsNumber
+  )
+}
+
 
 function initialize () {
   bangsPlugin.registerCustomBang({
@@ -98,77 +172,59 @@ function initialize () {
     }
   })
 
-  // returns a task with the same name or index ("1" returns the first task, etc.)
-  function getTaskByNameOrNumber (text) {
-    const textAsNumber = parseInt(text)
-
-    return tasks.find((task, index) => (task.name && task.name.toLowerCase() === text) || index + 1 === textAsNumber
-    )
-  }
-
-  // bangsPlugin.registerCustomBang({
-  //   phrase: '!task',
-  //   snippet: l('switchToTask'),
-  //   isAction: false,
-  //   fn: function (text) {
-  //   /* disabled in focus mode */
-  //     if (focusMode.enabled()) {
-  //       focusMode.warn()
-  //       return
-  //     }
-
-  //     text = text.toLowerCase()
-
-  //     // no task was specified, show all of the tasks
-  //     if (!text) {
-  //       taskOverlay.show()
-  //       return
-  //     }
-
-  //     var task = getTaskByNameOrNumber(text)
-
-  //     if (task) {
-  //       browserUI.switchToTask(task.id)
-  //     }
-  //   }
-  // })
-
   bangsPlugin.registerCustomBang({
-    phrase: '!savetask',
-    snippet: 'Save the current task to file',
-    isAction: true,
-    fn: async function (text) {
-      
-      var selectedTask
-      if (tasks.getSelected()) {
-        selectedTask = tasks.getSelected()
-      } else {
-        selectedTask = tasks.byIndex(0)
-      }
-      
-      var taskName = l('defaultTaskName').replace('%n', tasks.getIndex(selectedTask.id) + 1)
-      fileName = (selectedTask.name) ? selectedTask.name : taskName
+    phrase: '!movetotask',
+    snippet: l('moveToTask'),
+    isAction: false,
+    showSuggestions: function (text, input, event) {
+      searchbarPlugins.reset('bangs')
 
-      var savePath = await ipc.invoke('showSaveDialog', { 
-        title: 'Save current task to file',
-        message: "Save current task to file",
-        defaultPath: fileName + '.min',
-        filters: {name:'Min File', extensions:['min']}
+      var isFirst = true
+      
+      tasks.forEach(function (task) {
+        var taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1))
+        searchbarPlugins.addResult('bangs', {
+          title: taskName,
+          fakeFocus: isFirst && text,
+          click: function () {
+            tabEditor.hide()
+            moveToTask('%n'.replace('%n', tasks.getIndex(task.id) + 1))
+          }
+        })
+        isFirst = false
       })
-
-      if (!savePath) { 
-        return
-      }
-
-      selectedTask['filePath'] = savePath 
+    },
     
-      var stringData = JSON.stringify(Object.assign({}, selectedTask, { tabs: selectedTask.tabs.getStringifyableState() })) // might be better to refactor to task.getStringifyableState()
-  
-      require('fs').writeFileSync(savePath, stringData)
-      
-    }
-  })
+    fn: moveToTask
+    
+})
 
+bangsPlugin.registerCustomBang({
+  phrase: '!task',
+  snippet: l('switchToTask'),
+  isAction: false,
+  showSuggestions: function (text, input, event) {
+    searchbarPlugins.reset('bangs')
+
+    var isFirst = true
+    
+    tasks.forEach(function (task) {
+      var taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1))
+      searchbarPlugins.addResult('bangs', {
+        title: taskName,
+        fakeFocus: isFirst && text,
+        click: function () {
+          tabEditor.hide()
+          switchToTask('%n'.replace('%n', tasks.getIndex(task.id) + 1))
+        }
+      })
+      isFirst = false
+    })
+  },
+  
+  fn: switchToTask
+  
+})
   bangsPlugin.registerCustomBang({
     phrase: '!newtask',
     snippet: l('createTask'),
@@ -180,57 +236,16 @@ function initialize () {
         return
       }
 
-      browserUI.addTask()
-      if (text) {
-        tasks.getSelected().name = text
-      }
+      taskOverlay.show()
 
-      browserUI.switchToTask(tasks.getSelected().id)
+      setTimeout(function () {
+        browserUI.addTask()
+        if (text) {
+          tasks.getSelected().name = text
+        }
+      }, 600)
     }
   })
-
-  // bangsPlugin.registerCustomBang({
-  //   phrase: '!movetotask',
-  //   snippet: l('moveToTask'),
-  //   isAction: false,
-  //   fn: function (text) {
-  //   /* disabled in focus mode */
-  //     if (focusMode.enabled()) {
-  //       focusMode.warn()
-  //       return
-  //     }
-
-  //     // remove the tab from the current task
-
-  //     var currentTab = tabs.get(tabs.getSelected())
-  //     tabs.destroy(currentTab.id)
-
-  //     // make sure the task has at least one tab in it
-  //     if (tabs.count() === 0) {
-  //       tabs.add()
-  //     }
-
-  //     var newTask = getTaskByNameOrNumber(text)
-
-  //     if (newTask) {
-  //       newTask.tabs.add(currentTab, { atEnd: true })
-  //     } else {
-  //     // create a new task with the given name
-  //       newTask = tasks.get(tasks.add(undefined, tasks.getIndex(tasks.getSelected().id) + 1))
-  //       newTask.name = text
-
-  //       newTask.tabs.add(currentTab)
-  //     }
-
-  //     browserUI.switchToTask(newTask.id)
-  //     browserUI.switchToTab(currentTab.id)
-  //     taskOverlay.show()
-
-  //     setTimeout(function () {
-  //       taskOverlay.hide()
-  //     }, 600)
-  //   }
-  // })
 
   bangsPlugin.registerCustomBang({
     phrase: '!closetask',
