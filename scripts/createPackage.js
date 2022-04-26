@@ -1,8 +1,11 @@
 const packager = require('electron-packager')
 const rebuild = require('electron-rebuild').default
+const { execSync } = require('child_process')
 
 const packageFile = require('./../package.json')
 const version = packageFile.version
+const commitHash = execSync('git rev-parse --short HEAD').slice(0, -1).toString('ascii')
+
 const electronVersion = packageFile.electronVersion
 
 const basedir = require('path').join(__dirname, '../')
@@ -34,7 +37,7 @@ var baseOptions = {
   dir: basedir,
   out: 'dist/app',
   electronVersion: electronVersion,
-  appVersion: version,
+  appVersion: `${version}-${commitHash}`,
   arch: 'all',
   ignore: ignoredDirs,
   prune: true,

@@ -5,6 +5,7 @@ const archiver = require('archiver')
 
 const packageFile = require('./../package.json')
 const version = packageFile.version
+const commitHash = execSync('git rev-parse --short HEAD').slice(0, -1).toString('ascii')
 const platform = process.argv.find(arg => arg.match('platform')).split('=')[1]
 
 function toTarget (platform) {
@@ -24,7 +25,7 @@ require('./createPackage.js')(toTarget(platform)).then(function (appPaths) {
 
     /* create zip file */
 
-    var output = fs.createWriteStream(packagePath.replace('Min-', 'Min-v' + version + '-') + '.zip')
+    var output = fs.createWriteStream(packagePath.replace('Min-', 'Min-v' + `${version}-${commitHash}` + '-') + '.zip')
     var archive = archiver('zip', {
       zlib: { level: 9 }
     })
