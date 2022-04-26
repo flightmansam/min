@@ -48,13 +48,6 @@ function moveToTask(text) {
 
     browserUI.switchToTask(newTask.id)
     browserUI.switchToTab(currentTab.id)
-
-    
-    taskOverlay.show()
-
-    setTimeout(function () {
-      taskOverlay.hide()
-    }, 600)
 }
 
 function switchToTask (text) {
@@ -236,14 +229,13 @@ bangsPlugin.registerCustomBang({
         return
       }
 
-      taskOverlay.show()
-
-      setTimeout(function () {
-        browserUI.addTask()
-        if (text) {
+      browserUI.addTask()
+      
+      if (text) {
           tasks.getSelected().name = text
-        }
-      }, 600)
+      }
+
+      browserUI.switchToTask(tasks.getSelected().id)
     }
   })
 
