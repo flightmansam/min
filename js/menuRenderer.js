@@ -46,6 +46,10 @@ module.exports = {
       findinpage.start()
     })
 
+    ipc.on('copyTabURL', function () {
+      electron.clipboard.writeText(tabs.get(tabs.getSelected()).url)
+    })
+
     ipc.on('inspectPage', function () {
       webviews.callAsync(tabs.getSelected(), 'toggleDevTools')
     })
