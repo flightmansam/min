@@ -34,7 +34,7 @@ function moveToTask(text) {
       tabs.add()
     }
 
-    var newTask = getTaskByNameOrNumber(text.toLowerCase())
+    var newTask = tasks.getTaskByNameOrNumber(text.toLowerCase())
 
     if (newTask) {
       newTask.tabs.add(currentTab, { atEnd: true })
@@ -65,22 +65,12 @@ function switchToTask (text) {
     return
   }
 
-  var task = getTaskByNameOrNumber(text)
+  var task = tasks.getTaskByNameOrNumber(text)
 
   if (task) {
     browserUI.switchToTask(task.id)
   }
 }
-
-// returns a task with the same name or index ("1" returns the first task, etc.)
-// In future PR move this to task.js
-function getTaskByNameOrNumber (text) {
-  const textAsNumber = parseInt(text)
-
-  return tasks.find((task, index) => (task.name && task.name.toLowerCase() === text) || index + 1 === textAsNumber
-  )
-}
-
 
 function initialize () {
   bangsPlugin.registerCustomBang({
@@ -175,7 +165,7 @@ function initialize () {
       var isFirst = true
       
       tasks.forEach(function (task) {
-        var taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1))
+        var taskName = tasks.getPrintedName(task.id)
         searchbarPlugins.addResult('bangs', {
           title: taskName,
           fakeFocus: isFirst && text,
@@ -202,7 +192,7 @@ bangsPlugin.registerCustomBang({
     var isFirst = true
     
     tasks.forEach(function (task) {
-      var taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1))
+      var taskName = tasks.getPrintedName(task.id)
       searchbarPlugins.addResult('bangs', {
         title: taskName,
         fakeFocus: isFirst && text,
@@ -248,7 +238,7 @@ bangsPlugin.registerCustomBang({
       var taskToClose
 
       if (text) {
-        taskToClose = getTaskByNameOrNumber(text)
+        taskToClose = tasks.getTaskByNameOrNumber(text)
       } else {
         taskToClose = tasks.getSelected()
       }

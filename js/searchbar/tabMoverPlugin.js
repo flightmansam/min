@@ -88,7 +88,7 @@ module.exports = {
         var isFirst = true
         
         tasks.forEach(function (task) {
-          var taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1))
+          var taskName = tasks.getPrintedName(task.id)
           searchbarPlugins.addResult('bangs', {
             title: taskName,
             fakeFocus: isFirst && text,
@@ -115,7 +115,7 @@ module.exports = {
       var isFirst = true
       
       tasks.forEach(function (task) {
-        var taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1))
+        var taskName = tasks.getPrintedName(task.id)
         searchbarPlugins.addResult('bangs', {
           title: taskName,
           fakeFocus: isFirst && text,
