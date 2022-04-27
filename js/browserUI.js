@@ -192,6 +192,21 @@ tasks.on('tab-updated', function (id, key) {
   }
 })
 
+function openTabInNewPopout (id) {
+  var tab = tabs.get(id) //currently works for only the tabs that are in the current task
+  if (tab) {
+    var opts = {url: tab.url}
+    var parentTask = tasks.getTaskContainingTab(id)
+    if (parentTask) {
+      opts.parentTask = parentTask.id
+    }
+    ipc.send('convert-tab-to-popout', opts)
+
+    closeTab(tab.id)
+  }
+  
+}
+
 webviews.bindEvent('did-create-popup', function (tabId, popupId, initialURL) {
   var popupTab = tabs.add({
     // in most cases, initialURL will be overwritten once the popup loads, but if the URL is a downloaded file, it will remain the same
@@ -266,5 +281,6 @@ module.exports = {
   switchToTask,
   switchToTab,
   moveTabLeft,
-  moveTabRight
+  moveTabRight,
+  openTabInNewPopout
 }
