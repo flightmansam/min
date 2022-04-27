@@ -66,6 +66,7 @@ var mainWindow = null
 var mainWindowIsMinimized = false // workaround for https://github.com/minbrowser/min/issues/1074
 var mainMenu = null
 var secondaryMenu = null
+let popoutWindows = new Set()
 var isFocusMode = false
 var appIsReady = false
 
@@ -216,6 +217,7 @@ function createWindowWithBounds (bounds) {
   }
 
   mainWindow.on('close', function () {
+
     destroyAllViews()
     // save the window size for the next launch of the app
     saveWindowBounds()
@@ -390,6 +392,25 @@ ipc.on('showSecondaryMenu', function (event, data) {
   })
 })
 
+
 ipc.on('quit', function () {
-  app.quit()
+
+  //close any secondary windows (so that they can be collapsed back into the main browser window)
+
+  var closedPopouts = 0
+  var origPopouts = popoutWindows.size
+
+  popoutWindows.forEach(popout => {
+    ipc.once('tab-added', function() {
+      closedPopouts += 1
+    })
+    popout.window.close()
+  })
+
+  setInterval(function (){
+    if (closedPopouts === origPopouts){
+      app.quit()
+    }
+  }, 200)
+
 })

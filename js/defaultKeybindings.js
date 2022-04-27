@@ -129,6 +129,11 @@ const defaultKeybindings = {
         })
       })(i)
     }
+    
+    keybindings.defineShortcut({keys: 'f6'}, function (e) {
+      // open current tab in new popout window (with no UI)
+      browserUI.openTabInNewPopout(tabs.getSelected())
+    })
 
     keybindings.defineShortcut('gotoLastTab', function (e) {
       browserUI.switchToTab(tabs.getAtIndex(tabs.count() - 1).id)

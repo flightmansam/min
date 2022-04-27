@@ -10,6 +10,7 @@ var PDFViewer = require('pdfViewer.js')
 var tabEditor = require('navbar/tabEditor.js')
 var readerView = require('readerView.js')
 var taskOverlay = require('taskOverlay/taskOverlay.js')
+var tabBar = require('navbar/tabBar.js')
 
 module.exports = {
   initialize: function () {
@@ -87,13 +88,28 @@ module.exports = {
         return
       }
 
-      var newTab = tabs.add({
-        url: data.url || ''
-      })
+      var newTab = null
 
-      browserUI.addTab(newTab, {
-        enterEditMode: !data.url // only enter edit mode if the new tab is empty
-      })
+      if (data.parentTask && tasks.get(data.parentTask)) {
+
+        newTab = tasks.get(data.parentTask).tabs.add({
+          url: data.url || ''
+        }, { atEnd: true })
+
+        browserUI.switchToTask(data.parentTask)
+        browserUI.switchToTab(newTab)
+        
+      } else {
+        newTab = tabs.add({
+          url: data.url || ''
+        })
+
+        browserUI.addTab(newTab, {
+          enterEditMode: !data.url // only enter edit mode if the new tab is empty
+        })
+      }
+
+      e.sender.send('tab-added')
     })
 
     ipc.on('saveCurrentPage', async function () {
