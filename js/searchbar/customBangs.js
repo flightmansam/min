@@ -16,6 +16,7 @@ var tabBar = require('navbar/tabBar.js')
 var bookmarkConverter = require('bookmarkConverter.js')
 var searchbarPlugins = require('searchbar/searchbarPlugins.js')
 var tabEditor = require('navbar/tabEditor.js')
+var formatRelativeDate = require('util/relativeDate.js')
 
 function moveToTask(text) {
   /* disabled in focus mode */
@@ -164,10 +165,20 @@ function initialize () {
 
       var isFirst = true
       
-      tasks.forEach(function (task) {
+      var sortLastActivity = tasks.map(t => Object.assign({}, {task: t}, {lastActivity: tasks.getLastActivity(t.id)}))
+      
+      sortLastActivity = sortLastActivity.sort(function (a, b) {
+        return b.lastActivity - a.lastActivity
+      })
+      sortLastActivity.forEach(function (t) {
+
+        var task = t.task
         var taskName = tasks.getPrintedName(task.id)
+        var lastActivity = t.lastActivity
+        
         searchbarPlugins.addResult('bangs', {
           title: taskName,
+          secondaryText: formatRelativeDate(lastActivity),
           fakeFocus: isFirst && text,
           click: function () {
             tabEditor.hide()
@@ -191,19 +202,30 @@ bangsPlugin.registerCustomBang({
 
     var isFirst = true
     
-    tasks.forEach(function (task) {
-      var taskName = tasks.getPrintedName(task.id)
-      searchbarPlugins.addResult('bangs', {
-        title: taskName,
-        fakeFocus: isFirst && text,
-        click: function () {
-          tabEditor.hide()
-          switchToTask('%n'.replace('%n', tasks.getIndex(task.id) + 1))
-        }
-      })
-      isFirst = false
+    var sortLastActivity = tasks.map(t => Object.assign({}, {task: t}, {lastActivity: tasks.getLastActivity(t.id)}))
+    
+    sortLastActivity = sortLastActivity.sort(function (a, b) {
+      return b.lastActivity - a.lastActivity
     })
-  },
+
+    sortLastActivity.forEach(function (task) {
+        
+      var task = t.task
+      var lastActivity = t.lastActivity
+      var taskName = tasks.getPrintedName(task.id)
+        
+      searchbarPlugins.addResult('bangs', {
+          title: taskName,
+          secondaryText: formatRelativeDate(lastActivity),
+          fakeFocus: isFirst && text,
+          click: function () {
+            tabEditor.hide()
+            moveToTask('%n'.replace('%n', tasks.getIndex(task.id) + 1))
+          }
+        })
+        isFirst = false
+      })
+    },
   
   fn: switchToTask
   
