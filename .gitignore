@@ -6,3 +6,5 @@ main.build.js
 .DS_Store
 package-lock.json
 yarn.lock
+package-lock_archive.json
+node_modules.zip
