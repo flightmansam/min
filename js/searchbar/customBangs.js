@@ -208,8 +208,8 @@ bangsPlugin.registerCustomBang({
       return b.lastActivity - a.lastActivity
     })
 
-    sortLastActivity.forEach(function (task) {
-        
+    sortLastActivity.forEach(function (t) {
+    
       var task = t.task
       var lastActivity = t.lastActivity
       var taskName = tasks.getPrintedName(task.id)
