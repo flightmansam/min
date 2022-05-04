@@ -241,7 +241,7 @@ function initialize () {
   bangsPlugin.registerCustomBang({
     phrase: '!newtask',
     snippet: l('createTask'),
-    isAction: true,
+    isAction: false,
     fn: function (text) {
       /* disabled in focus mode */
       if (focusMode.enabled()) {
