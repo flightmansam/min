@@ -45,6 +45,7 @@ function toPath (platform, arch) {
 
 module.exports = function (platform, extraOptions) {
   const options = {
+    buildVersion:`${version}-${commitHash}`,
     files: [
       '**/*',
       '!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}',
