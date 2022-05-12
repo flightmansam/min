@@ -90,7 +90,7 @@ var searchTasks = function (text, input, event) {
       var taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1))
 
       var data = {
-        icon: 'carbon:autoscaling',
+        icon: 'carbon:page-scroll',
         title: taskName,
         secondaryText: formatRelativeDate(lastActivity),
         fakeFocus: false,
