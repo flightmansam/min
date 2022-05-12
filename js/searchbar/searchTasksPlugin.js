@@ -107,7 +107,7 @@ var searchTasks = function (text, input, event) {
 
 function initialize () {
   searchbarPlugins.register('searchTasks', {
-    index: 3,
+    index: 1,
     trigger: function (text) {
       return text.length > 2
     },
