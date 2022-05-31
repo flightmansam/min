@@ -19,6 +19,9 @@ var tabEditor = require('navbar/tabEditor.js')
 var formatRelativeDate = require('util/relativeDate.js')
 
 function moveToTask(text) {
+
+  console.log(tabs.getSelected())
+
   /* disabled in focus mode */
   if (focusMode.enabled()) {
     focusMode.warn()
@@ -47,9 +50,8 @@ function moveToTask(text) {
     newTask.tabs.add(currentTab)
   }
 
-    // browserUI.switchToTask(newTask.id)
-    // browserUI.switchToTab(currentTab.id)
-    tabBar.updateAll()
+    browserUI.switchToTask(tasks.getSelected().id)
+    
 }
 
 function switchToTask(text) {
