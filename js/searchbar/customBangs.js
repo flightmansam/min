@@ -49,6 +49,7 @@ function moveToTask(text) {
 
     // browserUI.switchToTask(newTask.id)
     // browserUI.switchToTab(currentTab.id)
+    tabBar.updateAll()
 }
 
 function switchToTask(text) {
