@@ -47,8 +47,8 @@ function moveToTask(text) {
     newTask.tabs.add(currentTab)
   }
 
-    browserUI.switchToTask(newTask.id)
-    browserUI.switchToTab(currentTab.id)
+    // browserUI.switchToTask(newTask.id)
+    // browserUI.switchToTab(currentTab.id)
 }
 
 function switchToTask(text) {
