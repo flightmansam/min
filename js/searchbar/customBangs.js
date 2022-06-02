@@ -3,25 +3,20 @@
 const { ipcRenderer } = require('electron')
 const fs = require('fs')
 
-var bangsPlugin = require('searchbar/bangsPlugin.js')
+const bangsPlugin = require('searchbar/bangsPlugin.js')
 
-var webviews = require('webviews.js')
-var browserUI = require('browserUI.js')
-var focusMode = require('focusMode.js')
-var places = require('places/places.js')
-var contentBlockingToggle = require('navbar/contentBlockingToggle.js')
-var taskOverlay = require('taskOverlay/taskOverlay.js')
-var taskNameDisplay = require('navbar/taskNameDisplay.js')
-var tabBar = require('navbar/tabBar.js')
-var bookmarkConverter = require('bookmarkConverter.js')
-var searchbarPlugins = require('searchbar/searchbarPlugins.js')
-var tabEditor = require('navbar/tabEditor.js')
-var formatRelativeDate = require('util/relativeDate.js')
+const webviews = require('webviews.js')
+const browserUI = require('browserUI.js')
+const focusMode = require('focusMode.js')
+const places = require('places/places.js')
+const contentBlockingToggle = require('navbar/contentBlockingToggle.js')
+const taskOverlay = require('taskOverlay/taskOverlay.js')
+const bookmarkConverter = require('bookmarkConverter.js')
+const searchbarPlugins = require('searchbar/searchbarPlugins.js')
+const tabEditor = require('navbar/tabEditor.js')
+const formatRelativeDate = require('util/relativeDate.js')
 
-function moveToTask(text) {
-
-  console.log(tabs.getSelected())
-
+function moveToTaskCommand (taskId) {
   /* disabled in focus mode */
   if (focusMode.enabled()) {
     focusMode.warn()
@@ -30,7 +25,7 @@ function moveToTask(text) {
 
   // remove the tab from the current task
 
-  var currentTab = tabs.get(tabs.getSelected())
+  const currentTab = tabs.get(tabs.getSelected())
   tabs.destroy(currentTab.id)
 
   // make sure the task has at least one tab in it
@@ -38,98 +33,67 @@ function moveToTask(text) {
     tabs.add()
   }
 
-    var newTask = tasks.getTaskByNameOrNumber(text.toLowerCase())
+  const newTask = tasks.get(taskId)
 
-  if (newTask) {
-    newTask.tabs.add(currentTab, { atEnd: true })
-  } else {
-    // create a new task with the given name
-    newTask = tasks.get(tasks.add(undefined, tasks.getIndex(tasks.getSelected().id) + 1))
-    newTask.name = text
+  newTask.tabs.add(currentTab, { atEnd: true })
 
-    newTask.tabs.add(currentTab)
-  }
-
-    browserUI.switchToTask(tasks.getSelected().id)
+  browserUI.switchToTask(tasks.getSelected().id)
     
 }
 
-function switchToTask(text) {
+function switchToTaskCommand (taskId) {
   /* disabled in focus mode */
   if (focusMode.enabled()) {
     focusMode.warn()
     return
   }
 
-  text = text.toLowerCase()
-
   // no task was specified, show all of the tasks
-  if (!text) {
+  if (!taskId) {
     taskOverlay.show()
     return
   }
 
-  var task = tasks.getTaskByNameOrNumber(text)
-
-  if (task) {
-    browserUI.switchToTask(task.id)
-  }
+  browserUI.switchToTask(taskId)
 }
 
 // returns a task with the same name or index ("1" returns the first task, etc.)
-// In future PR move this to task.js
-function getTaskByNameOrNumber(text) {
+function getTaskByNameOrNumber (text) {
   const textAsNumber = parseInt(text)
 
   return tasks.find((task, index) => (task.name && task.name.toLowerCase() === text) || index + 1 === textAsNumber
   )
 }
 
-// return an array of dicts, sorted by last task activity
-// if a search string is present (and not a number) filter the results with a basic fuzzy search
-function searchAndSortTasks(text) {
-  var sortLastActivity = tasks.map(t => Object.assign({}, { task: t }, { lastActivity: tasks.getLastActivity(t.id) }))
+// return an array of tasks sorted by last activity
+// if a search string is present, filter the results with a basic fuzzy search
+function searchAndSortTasks (text) {
+  let taskResults = tasks
+    .filter(t => t.id !== tasks.getSelected().id)
+    .map(t => Object.assign({}, { task: t }, { lastActivity: tasks.getLastActivity(t.id) }))
 
-  sortLastActivity = sortLastActivity.sort(function (a, b) {
+  taskResults = taskResults.sort(function (a, b) {
     return b.lastActivity - a.lastActivity
   })
 
-  var isSingleNumber = /^\d+$/.test(text)
-
-  if (text !== '' ? !isSingleNumber : !isSingleNumber) { //lXOR
+  if (text !== '') {
     // fuzzy search
-    var matches = []
-    var searchText = text.toLowerCase()
+    const searchText = text.toLowerCase()
 
-    sortLastActivity.forEach(function (t) {
+    taskResults = taskResults.filter(function (t) {
+      const task = t.task
+      const taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1)).toLowerCase()
+      const exactMatch = taskName.indexOf(searchText) !== -1
+      const fuzzyTitleScore = taskName.score(searchText, 0.5)
 
-      var task = t.task
-      var taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1)).toLowerCase()
-      var exactMatch = taskName.indexOf(searchText) !== -1
-      var fuzzyTitleScore = taskName.score(searchText, 0.5)
-
-      if (exactMatch || fuzzyTitleScore > 0.4) {
-        matches.push({
-          task: t,
-          score: fuzzyTitleScore + exactMatch
-        })
-      }
+      return (exactMatch || fuzzyTitleScore > 0.4)
     })
-
-    matches = matches.sort(function (a, b) {
-      return b.score - a.score
-    })
-
-    sortLastActivity = matches.map(t => t.task)
-
-    selected = sortLastActivity[0]
-
   }
 
-  return sortLastActivity
+  return taskResults
 }
 
-function initialize() {
+function initialize () {
   bangsPlugin.registerCustomBang({
     phrase: '!settings',
     snippet: l('viewSettings'),
@@ -219,33 +183,39 @@ function initialize() {
     showSuggestions: function (text, input, event) {
       searchbarPlugins.reset('bangs')
 
-      var sortLastActivity = searchAndSortTasks(text)
+      const taskResults = searchAndSortTasks(text)
 
-      sortLastActivity.forEach(function (t) {
+      taskResults.forEach(function (t, idx) {
+        const task = t.task
+        const lastActivity = t.lastActivity
 
-        var task = t.task
-        var taskName = tasks.getPrintedName(task.id)
-        var lastActivity = t.lastActivity
+        const taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1))
 
-        if (task.id != tasks.getSelected().id) {
-          var taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1))
-
-          var data = {
-            title: taskName,
-            secondaryText: formatRelativeDate(lastActivity),
-            fakeFocus: false,
-            click: function () {
-              tabEditor.hide()
-              moveToTask('%n'.replace('%n', tasks.getIndex(task.id) + 1))
-            }
+        const data = {
+          title: taskName,
+          secondaryText: formatRelativeDate(lastActivity),
+          fakeFocus: text && idx === 0,
+          click: function () {
+            tabEditor.hide()
+            moveToTaskCommand(task.id)
           }
-
-          searchbarPlugins.addResult('bangs', data)
         }
+
+        searchbarPlugins.addResult('bangs', data)
       })
     },
 
-    fn: moveToTask
+    fn: function (text) {
+      // use the first search result
+      // if there is no search text or no result, need to create a new task
+      let task = searchAndSortTasks(text)[0]?.task
+      if (!text || !task) {
+        task = tasks.get(tasks.add(undefined, tasks.getIndex(tasks.getSelected().id) + 1))
+        task.name = text
+      }
+
+      return moveToTaskCommand(task.id)
+    }
 
   })
 
@@ -256,35 +226,37 @@ function initialize() {
     showSuggestions: function (text, input, event) {
       searchbarPlugins.reset('bangs')
 
-      var sortLastActivity = searchAndSortTasks(text)
+      const taskResults = searchAndSortTasks(text)
 
-      sortLastActivity.forEach(function (t) {
+      taskResults.forEach(function (t, idx) {
+        const task = t.task
+        const lastActivity = t.lastActivity
 
-        var task = t.task
-        var lastActivity = t.lastActivity
+        const taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1))
 
-        if (task.id != tasks.getSelected().id) {
-          var taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1))
-
-          var data = {
-            title: taskName,
-            secondaryText: formatRelativeDate(lastActivity),
-            fakeFocus: false,
-            click: function () {
-              tabEditor.hide()
-              switchToTask('%n'.replace('%n', tasks.getIndex(task.id) + 1))
-            }
+        const data = {
+          title: taskName,
+          secondaryText: formatRelativeDate(lastActivity),
+          fakeFocus: text && idx === 0,
+          click: function () {
+            tabEditor.hide()
+            switchToTaskCommand(task.id)
           }
-          
-          searchbarPlugins.addResult('bangs', data)
-
         }
+
+        searchbarPlugins.addResult('bangs', data)
       })
     },
-
-    fn: switchToTask
-
+    fn: function (text) {
+      if (text) {
+      // switch to the first search result
+        switchToTaskCommand(searchAndSortTasks(text)[0].task.id)
+      } else {
+        taskOverlay.show()
+      }
+    }
   })
+
   bangsPlugin.registerCustomBang({
     phrase: '!newtask',
     snippet: l('createTask'),
@@ -311,8 +283,8 @@ function initialize() {
     snippet: l('closeTask'),
     isAction: false,
     fn: function (text) {
-      var currentTask = tasks.getSelected()
-      var taskToClose
+      const currentTask = tasks.getSelected()
+      let taskToClose
 
       if (text) {
         taskToClose = tasks.getTaskByNameOrNumber(text)
@@ -347,7 +319,7 @@ function initialize() {
     snippet: l('importBookmarks'),
     isAction: true,
     fn: async function () {
-      var filePath = await ipc.invoke('showOpenDialog', {
+      const filePath = await ipc.invoke('showOpenDialog', {
         filters: [
           { name: 'HTML files', extensions: ['htm', 'html'] }
         ]
@@ -371,9 +343,9 @@ function initialize() {
     snippet: l('exportBookmarks'),
     isAction: true,
     fn: async function () {
-      var data = await bookmarkConverter.exportAll()
+      const data = await bookmarkConverter.exportAll()
       // save the result
-      var savePath = await ipc.invoke('showSaveDialog', { defaultPath: 'bookmarks.html' })
+      const savePath = await ipc.invoke('showSaveDialog', { defaultPath: 'bookmarks.html' })
       require('fs').writeFileSync(savePath, data)
     }
   })
@@ -382,7 +354,7 @@ function initialize() {
     phrase: '!addbookmark',
     snippet: l('addBookmark'),
     fn: function (text) {
-      var url = tabs.get(tabs.getSelected()).url
+      const url = tabs.get(tabs.getSelected()).url
       if (url) {
         places.updateItem(url, {
           isBookmarked: true,
