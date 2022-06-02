@@ -37,6 +37,9 @@ function moveToTaskCommand (taskId) {
 
   newTask.tabs.add(currentTab, { atEnd: true })
 
+  //set it selected
+  newTask.tabs.setSelected(currentTab.id)
+
   browserUI.switchToTask(tasks.getSelected().id)
     
 }
