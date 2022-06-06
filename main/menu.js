@@ -51,6 +51,13 @@ function buildAppMenu (options = {}) {
           sendIPCToWindow(window, 'addTask')
         }
       }
+    },
+    {
+      label: 'Toggle Collapsed Task',
+      accelerator: 'CmdOrCtrl+\\',
+      click: function (item, window, event) {
+        sendIPCToWindow(window, 'toggleCollapsed') 
+      }
     }
   ]
 
