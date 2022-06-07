@@ -14,6 +14,7 @@ const taskOverlay = require('taskOverlay/taskOverlay.js')
 const bookmarkConverter = require('bookmarkConverter.js')
 const searchbarPlugins = require('searchbar/searchbarPlugins.js')
 const tabEditor = require('navbar/tabEditor.js')
+const tabBar = require('navbar/tabBar.js')
 const formatRelativeDate = require('util/relativeDate.js')
 
 function moveToTaskCommand (taskId) {
