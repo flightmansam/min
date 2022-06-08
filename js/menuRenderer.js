@@ -11,6 +11,7 @@ var tabEditor = require('navbar/tabEditor.js')
 var readerView = require('readerView.js')
 var taskOverlay = require('taskOverlay/taskOverlay.js')
 var tabBar = require('navbar/tabBar.js')
+var { searchAndSortTasks, moveToTaskCommand } = require('searchbar/customBangs.js')
 
 module.exports = {
   initialize: function () {
@@ -111,6 +112,19 @@ module.exports = {
         browserUI.addTab(newTab, {
           enterEditMode: !data.url // only enter edit mode if the new tab is empty
         })
+  
+        if (data.taskQuery) {
+        // use the first search result
+        // if there is no result, need to create a new task
+        let task = searchAndSortTasks(data.taskQuery, excludeSelected=false)[0]?.task
+        if (!task) {
+          task = tasks.get(tasks.add(undefined, tasks.getIndex(tasks.getSelected().id) + 1))
+          task.name = data.taskQuery
+        }
+  
+        moveToTaskCommand(task.id)
+        browserUI.switchToTask(task.id)
+        }
       }
 
       e.sender.send('tab-added')
