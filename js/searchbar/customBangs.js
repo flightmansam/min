@@ -18,12 +18,6 @@ const tabBar = require('navbar/tabBar.js')
 const formatRelativeDate = require('util/relativeDate.js')
 
 function moveToTaskCommand (taskId) {
-  /* disabled in focus mode */
-  if (focusMode.enabled()) {
-    focusMode.warn()
-    return
-  }
-
   // remove the tab from the current task
 
   const currentTab = tabs.get(tabs.getSelected())
@@ -71,14 +65,19 @@ function getTaskByNameOrNumber (text) {
 
 // return an array of tasks sorted by last activity
 // if a search string is present, filter the results with a basic fuzzy search
-function searchAndSortTasks (text) {
-  let taskResults = tasks
-    .filter(t => t.id !== tasks.getSelected().id)
-    .map(t => Object.assign({}, { task: t }, { lastActivity: tasks.getLastActivity(t.id) }))
+function searchAndSortTasks (text, excludeSelected=true) {
 
-  taskResults = taskResults.sort(function (a, b) {
-    return b.lastActivity - a.lastActivity
-  })
+  let taskResults = tasks
+  
+  if (excludeSelected === true){
+    taskResults = tasks.filter(t => t.id !== tasks.getSelected().id)
+  }
+
+  taskResults = taskResults
+    .map(t => Object.assign({}, { task: t }, { lastActivity: tasks.getLastActivity(t.id) }))
+    .sort(function (a, b) {
+      return b.lastActivity - a.lastActivity
+    })
 
   if (text !== '') {
     // fuzzy search
@@ -93,7 +92,6 @@ function searchAndSortTasks (text) {
       return (exactMatch || fuzzyTitleScore > 0.4)
     })
   }
-
   return taskResults
 }
 
@@ -369,4 +367,4 @@ function initialize () {
   })
 }
 
-module.exports = { initialize }
+module.exports = { initialize, searchAndSortTasks, moveToTaskCommand  }
