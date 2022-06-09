@@ -87,13 +87,17 @@ var saveWindowBounds = function () {
 }
 
 function sendIPCToWindow (window, action, data) {
-  // if there are no windows, create a new one
-  if (!mainWindow) {
-    createWindow(function () {
-      mainWindow.webContents.send(action, data || {})
+  if (window && window.webContents && window.webContents.isLoading()) {
+    window.webContents.once('did-finish-load', function () {
+      window.webContents.send(action, data || {})
     })
+  } else if (window) {
+    window.webContents.send(action, data || {})
   } else {
-    mainWindow.webContents.send(action, data || {})
+    var window = createWindow()
+    window.webContents.once('did-finish-load', function () {
+      window.webContents.send(action, data || {})
+    })
   }
 }
 
@@ -148,47 +152,39 @@ function handleCommandLineArguments (argv) {
   }
 }
 
-function createWindow (cb) {
-  fs.readFile(path.join(userDataPath, 'windowBounds.json'), 'utf-8', function (e, data) {
-    var bounds
+function createWindow () {
+  var bounds;
 
-    if (data) {
-      try {
-        bounds = JSON.parse(data)
-      } catch (e) {
-        console.warn('error parsing window bounds file: ', e)
-      }
-    }
-    if (e || !data || !bounds) { // there was an error, probably because the file doesn't exist
-      var size = electron.screen.getPrimaryDisplay().workAreaSize
-      bounds = {
-        x: 0,
-        y: 0,
-        width: size.width,
-        height: size.height,
-        maximized: true
-      }
-    }
+  try {
+    var data = fs.readFileSync(path.join(userDataPath, 'windowBounds.json'), 'utf-8')
+    bounds = JSON.parse(data)
+  } catch (e) {}
 
-    // make the bounds fit inside a currently-active screen
-    // (since the screen Min was previously open on could have been removed)
-    // see: https://github.com/minbrowser/min/issues/904
-    var containingRect = electron.screen.getDisplayMatching(bounds).workArea
-
+  if (!bounds) { // there was an error, probably because the file doesn't exist
+    var size = electron.screen.getPrimaryDisplay().workAreaSize
     bounds = {
-      x: clamp(bounds.x, containingRect.x, (containingRect.x + containingRect.width) - bounds.width),
-      y: clamp(bounds.y, containingRect.y, (containingRect.y + containingRect.height) - bounds.height),
-      width: clamp(bounds.width, 0, containingRect.width),
-      height: clamp(bounds.height, 0, containingRect.height),
-      maximized: bounds.maximized
+      x: 0,
+      y: 0,
+      width: size.width,
+      height: size.height,
+      maximized: true
     }
+  }
 
-    createWindowWithBounds(bounds)
+  // make the bounds fit inside a currently-active screen
+  // (since the screen Min was previously open on could have been removed)
+  // see: https://github.com/minbrowser/min/issues/904
+  var containingRect = electron.screen.getDisplayMatching(bounds).workArea
 
-    if (cb) {
-      cb()
-    }
-  })
+  bounds = {
+    x: clamp(bounds.x, containingRect.x, (containingRect.x + containingRect.width) - bounds.width),
+    y: clamp(bounds.y, containingRect.y, (containingRect.y + containingRect.height) - bounds.height),
+    width: clamp(bounds.width, 0, containingRect.width),
+    height: clamp(bounds.height, 0, containingRect.height),
+    maximized: bounds.maximized
+  }
+
+  return createWindowWithBounds(bounds)
 }
 
 function createWindowWithBounds (bounds) {
@@ -343,29 +339,29 @@ app.on('ready', function () {
     return
   }
   
-  createWindow(function () {
-    mainWindow.webContents.on('did-finish-load', function () {
-      // if a URL was passed as a command line argument (probably because Min is set as the default browser on Linux), open it.
-      handleCommandLineArguments(process.argv)
+  createWindow()
 
-      // there is a URL from an "open-url" event (on Mac)
-      if (global.URLToOpen) {
-        // if there is a previously set URL to open (probably from opening a link on macOS), open it
-        sendIPCToWindow(mainWindow, 'addTab', {
-          url: global.URLToOpen
-        })
-        global.URLToOpen = null
-      }
+  mainWindow.webContents.on('did-finish-load', function () {
+    // if a URL was passed as a command line argument (probably because Min is set as the default browser on Linux), open it.
+    handleCommandLineArguments(process.argv)
 
-      // there is a FILE from an "open-file" event (on Mac)
-      if (global.TaskToOpen) {
-        // if there is a previously set FILE to open (probably from opening a link on macOS), open it
-        sendIPCToWindow(mainWindow, 'openTaskFile', {
-          filePath: global.TaskToOpen 
-        })
-        global.TaskToOpen = null
-      }
-    })
+    // there is a URL from an "open-url" event (on Mac)
+    if (global.URLToOpen) {
+      // if there is a previously set URL to open (probably from opening a link on macOS), open it
+      sendIPCToWindow(mainWindow, 'addTab', {
+        url: global.URLToOpen
+      })
+      global.URLToOpen = null
+    }
+
+    // there is a FILE from an "open-file" event (on Mac)
+    if (global.TaskToOpen) {
+      // if there is a previously set FILE to open (probably from opening a link on macOS), open it
+      sendIPCToWindow(mainWindow, 'openTaskFile', {
+        filePath: global.TaskToOpen 
+      })
+      global.TaskToOpen = null
+    }
   })
 
   mainMenu = buildAppMenu()
@@ -418,6 +414,16 @@ function registerMacListeners() {
   })
 }
 
+// handoff support for macOS
+app.on('continue-activity', function(e, type, userInfo, details) {
+  if (type === 'NSUserActivityTypeBrowsingWeb' && details.webpageURL) {
+    e.preventDefault()
+    sendIPCToWindow(mainWindow, 'addTab', {
+      url: details.webpageURL
+    })
+  }
+})
+
 app.on('second-instance', function (e, argv, workingDir, additionalData) {
   if (mainWindow) {
     if (mainWindow.isMinimized()) {
@@ -454,7 +460,6 @@ ipc.on('showSecondaryMenu', function (event, data) {
     y: data.y
   })
 })
-
 
 ipc.on('quit', function () {
 

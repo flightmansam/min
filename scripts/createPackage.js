@@ -98,7 +98,8 @@ module.exports = function (platform, extraOptions) {
             CFBundleTypeRole: 'Viewer',
             LSItemContentTypes: ['public.xhtml']
           }
-        ]
+        ],
+        NSUserActivityTypes: ['NSUserActivityTypeBrowsingWeb'] // macOS handoff support
       }
     },
     directories: {
