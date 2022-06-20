@@ -432,6 +432,16 @@ app.on('continue-activity', function(e, type, userInfo, details) {
   }
 })
 
+// handoff support for macOS
+app.on('continue-activity', function(e, type, userInfo, details) {
+  if (type === 'NSUserActivityTypeBrowsingWeb' && details.webpageURL) {
+    e.preventDefault()
+    sendIPCToWindow(mainWindow, 'addTab', {
+      url: details.webpageURL
+    })
+  }
+})
+
 app.on('second-instance', function (e, argv, workingDir, additionalData) {
   if (mainWindow) {
     if (mainWindow.isMinimized()) {
@@ -467,6 +477,14 @@ ipc.on('showSecondaryMenu', function (event, data) {
     x: data.x,
     y: data.y
   })
+})
+
+ipc.on('handoffUpdate', function(e, data) {
+  if (data.url && data.url.startsWith('http')) {
+    app.setUserActivity('NSUserActivityTypeBrowsingWeb', {}, data.url)
+  } else {
+    app.invalidateCurrentActivity()
+  }
 })
 
 ipc.on('quit', function () {
