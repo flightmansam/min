@@ -7,12 +7,13 @@ onmessage = function (e) {
   const input = e.data.input
   const customEnv = e.data.customEnv
   const maxBuffer = e.data.maxBuffer
+  const timeout = e.data.timeout
 
   try {
-    const process = spawnSync(command, args, { input: input, encoding: 'utf8', env: customEnv, maxBuffer: maxBuffer })
+    const process = spawnSync(command, args, { input: input, encoding: 'utf8', env: customEnv, maxBuffer: maxBuffer, timeout: timeout })
 
-    if (process.error || process.signal) {
-      throw new Error('Process terminated: ' + process.stderr + ', ' + process.signal + ', ' + process.error)
+    if (process.error || process.signal || process.status) {
+      throw new Error('Process terminated: ' + process.stderr + ', ' + process.signal + ', ' + process.error + ', ' + process.status)
     }
 
     let output = process.output[1]
@@ -22,6 +23,7 @@ onmessage = function (e) {
 
     postMessage({ taskId: taskId, result: output })
   } catch (e) {
+    console.log(e)
     postMessage({ taskId: taskId, error: e.toString() })
   }
 }
