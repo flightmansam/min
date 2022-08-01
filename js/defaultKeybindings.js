@@ -4,6 +4,7 @@ var browserUI = require('browserUI.js')
 var focusMode = require('focusMode.js')
 var modalMode = require('modalMode.js')
 var tabEditor = require('navbar/tabEditor.js')
+const tabAudio = require('tabAudio.js')
 
 const defaultKeybindings = {
   initialize: function () {
@@ -142,6 +143,21 @@ const defaultKeybindings = {
     keybindings.defineShortcut('gotoFirstTab', function (e) {
       browserUI.switchToTab(tabs.getAtIndex(0).id)
     })
+    
+    keybindings.defineShortcut('gotoNowPlaying', function (d) {
+      if (focusMode.enabled()) {
+        focusMode.warn()
+        return
+      }
+
+      const tabsWithAudio = tabAudio.tabsWithAudio()
+
+      if (tabsWithAudio.length > 0) {
+        browserUI.switchToTask(tasks.getTaskContainingTab(tabsWithAudio[0].id).id)
+        browserUI.switchToTab(tabsWithAudio[0])
+      }
+
+    })
 
     keybindings.defineShortcut({ keys: 'esc' }, function (e) {
       if (webviews.placeholderRequests.length === 0 && document.activeElement.tagName !== 'INPUT') {
@@ -218,6 +234,31 @@ const defaultKeybindings = {
 
       const previousTask = taskSwitchList[currentTaskIdx - 1] || taskSwitchList[taskCount - 1]
       browserUI.switchToTask(previousTask.id)
+    })
+
+    keybindings.defineShortcut('switchToPreviousLocation', function (d) {
+      if (focusMode.enabled()) {
+        focusMode.warn()
+        return
+      }
+
+      const taskSwitchList = tasks.filter(t => !tasks.isCollapsed(t.id))
+
+      var tabs = []
+
+      taskSwitchList.forEach(task => {
+        task.tabs.forEach(tab => {
+          tabs.push(tab)
+        })      
+      });
+
+      tabs = tabs.sort(function (a, b) {
+        return b.lastActivity - a.lastActivity
+      })
+
+      browserUI.switchToTask(tasks.getTaskContainingTab(tabs[1].id).id)
+      browserUI.switchToTab(tabs[1])
+
     })
 
     // shift+option+cmd+x should switch to task x

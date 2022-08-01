@@ -47,6 +47,24 @@ var tabAudio = {
       tabs.update(tabId, { muted: !tab.muted })
     }
   },
+  tabsWithAudio: function(){
+    var tabs = []
+
+    tasks.forEach(task => {
+      task.tabs.forEach(tab => {
+          if (tab.hasAudio == true) {
+            tabs.push(tab)
+          }
+      })      
+    });
+
+    tabs = tabs.sort(function (a, b) {
+      return b.lastActivity - a.lastActivity
+    })
+
+    return tabs
+   
+  },
   initialize: function () {
     keybindings.defineShortcut('toggleTabAudio', function () {
       tabAudio.toggleAudio(tabs.getSelected())
