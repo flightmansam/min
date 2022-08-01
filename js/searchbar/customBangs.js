@@ -15,6 +15,7 @@ const bookmarkConverter = require('bookmarkConverter.js')
 const searchbarPlugins = require('searchbar/searchbarPlugins.js')
 const tabEditor = require('navbar/tabEditor.js')
 const formatRelativeDate = require('util/relativeDate.js')
+const tabAudio = require('tabAudio.js')
 
 function moveToTaskCommand (taskId) {
   // remove the tab from the current task
@@ -91,6 +92,40 @@ function searchAndSortTasks (text) {
   }
 
   return taskResults
+}
+
+// return an array of tabs sorted by last activity
+// if a search string is present, filter the results with a basic fuzzy search
+function searchAndSortTabs (text, tabs = undefined) {
+  if (typeof tabs === 'undefined'){
+    tabs = []
+    tasks.forEach(task => {
+      task.tabs.forEach(tab => {
+        tabs.push(tab)
+      })      
+    });
+  }
+
+  let tabResults = tabs.filter(t => t.id !== tasks.getSelected().tabs.getSelected().id)
+  
+  tabResults = tabResults.sort(function (a, b) {
+    return b.lastActivity - a.lastActivity
+  })
+
+  if (text !== '') {
+    // fuzzy search
+    const searchText = text.toLowerCase()
+
+    tabResults = tabResults.filter(function (t) {
+      const title = t.title.toLowerCase()
+      const exactMatch = title.indexOf(searchText) !== -1
+      const fuzzyTitleScore = title.score(searchText, 0.5)
+
+      return (exactMatch || fuzzyTitleScore > 0.4)
+    })
+  }
+
+  return tabResults
 }
 
 function initialize () {
@@ -275,6 +310,64 @@ function initialize () {
           tasks.getSelected().name = text
         }
       }, 600)
+    }
+  })
+
+  bangsPlugin.registerCustomBang({
+    phrase: '!playing',
+    snippet: "Find tabs that are playing audio",
+    isAction: false,
+    showSuggestions: function (text, input, event) {
+      searchbarPlugins.reset('bangs')
+
+      const tabList = tabAudio.tabsWithAudio()
+      const tabResults = searchAndSortTabs(text, tabList)
+
+      if (tabResults.length == 0){
+        const data = {
+          title: "No tabs are currently playing audio.",
+          fakeFocus: true,
+          click: function() {tabEditor.hide()}
+        }
+        searchbarPlugins.addResult('bangs', data)
+      } else {
+        tabResults.forEach(function (t, idx) {
+          const lastActivity = t.lastActivity
+  
+          const tabName = t.title
+          const task = tasks.getTaskContainingTab(t.id)
+  
+          const data = {
+            title: tabName,
+            secondaryText: (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1)),
+            fakeFocus: text && idx === 0,
+            click: function () {
+              tabEditor.hide()
+              browserUI.switchToTask(task.id)
+              browserUI.switchToTab(t.id)
+            }
+          }
+  
+          searchbarPlugins.addResult('bangs', data)
+        })
+      }
+
+    },
+    fn: function (text) {
+      /* disabled in focus mode */
+      if (focusMode.enabled()) {
+        focusMode.warn()
+        return
+      }
+
+      if (text) {
+      // switch to the first search result
+        const tabList = tabAudio.tabsWithAudio()
+        const tabResults = searchAndSortTabs(text, tabList)
+
+        browserUI.switchToTask(tasks.getTaskContainingTab(tabResults[0].id).id)
+        browserUI.switchToTab(tabResults[0].id)
+      }
     }
   })
 
