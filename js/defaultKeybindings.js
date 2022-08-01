@@ -252,7 +252,7 @@ const defaultKeybindings = {
       })
 
       browserUI.switchToTask(tasks.getTaskContainingTab(tabs[1].id).id)
-      browserUI.switchToTab(tabs[1])
+      browserUI.switchToTab(tabs[1].id)
 
     })
 
