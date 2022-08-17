@@ -5,6 +5,7 @@ var focusMode = require('focusMode.js')
 var modalMode = require('modalMode.js')
 var tabEditor = require('navbar/tabEditor.js')
 const tabAudio = require('tabAudio.js')
+const { exec, execSync } = require('child_process')
 
 const defaultKeybindings = {
   initialize: function () {
@@ -258,6 +259,18 @@ const defaultKeybindings = {
 
       browserUI.switchToTask(tasks.getTaskContainingTab(tabs[1].id).id)
       browserUI.switchToTab(tabs[1].id)
+
+    })
+
+    keybindings.defineShortcut('sendToSafari', function (d) {
+
+      
+      execSync("open /Applications/Safari.app")
+
+      setTimeout(function () {
+        exec("osascript -e 'tell application \"Safari\"' -e 'open location \""+tabs.get(tabs.getSelected()).url+"\"' -e 'activate' -e 'end tell'")
+      }, 500)
+    
 
     })
 

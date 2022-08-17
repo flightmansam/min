@@ -25,6 +25,7 @@ var defaultKeyMap = {
   switchToNextTask: 'mod+]',
   switchToPreviousTask: 'mod+[',
   switchToPreviousLocation: 'ctrl+mod+[',
+  sendToSafari:'mod+shift+s',
   closeAllTabs: 'shift+mod+n',
   reload: ['mod+r', 'f5'],
   reloadIgnoringCache: 'mod+f5',
