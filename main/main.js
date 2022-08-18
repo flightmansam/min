@@ -338,6 +338,11 @@ app.on('ready', function () {
       sendIPCToWindow(mainWindow, 'addTab', {
         url: global.URLToOpen
       })
+
+      setTimeout(function () {
+        sendIPCToWindow(mainWindow, 'showTaskMover');
+      }, 500);
+
       global.URLToOpen = null
     }
   })
@@ -352,6 +357,12 @@ app.on('open-url', function (e, url) {
     sendIPCToWindow(mainWindow, 'addTab', {
       url: url
     })
+
+    setTimeout(function () {
+      sendIPCToWindow(mainWindow, 'showTaskMover');
+    }, 1000);
+    
+
   } else {
     global.URLToOpen = url // this will be handled later in the createWindow callback
   }

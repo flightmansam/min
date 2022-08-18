@@ -58,6 +58,14 @@ module.exports = {
       tabEditor.show(tabs.getSelected(), '!bookmarks ')
     })
 
+    ipc.on('showTaskMover', function () {
+      var currentTabId = tabs.getSelected()
+      tabEditor.show(tabs.getSelected(), '!movetotaskfollow ')
+      setTimeout(function(){
+        tabEditor.hide()
+      }, 10000)
+    })
+
     ipc.on('showHistory', function () {
       tabEditor.show(tabs.getSelected(), '!history ')
     })
