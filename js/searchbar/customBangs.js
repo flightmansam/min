@@ -257,6 +257,64 @@ function initialize () {
   })
 
   bangsPlugin.registerCustomBang({
+    phrase: '!movetotaskfollow',
+    snippet: l('moveToTaskFollow'),
+    isAction: false,
+    showSuggestions: function (text, input, event) {
+      searchbarPlugins.reset('bangs')
+
+      const taskResults = searchAndSortTasks(text)
+
+      taskResults.forEach(function (t, idx) {
+        const task = t.task
+        const lastActivity = t.lastActivity
+
+        const taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1))
+
+        const data = {
+          title: taskName,
+          secondaryText: formatRelativeDate(lastActivity),
+          fakeFocus: text && idx === 0,
+          click: function () {
+            tabEditor.hide()
+
+            /* disabled in focus mode */
+            if (focusMode.enabled()) {
+              focusMode.warn()
+              return
+            }
+
+            moveToTaskCommand(task.id)
+            switchToTaskCommand(task.id)
+          }
+        }
+
+        searchbarPlugins.addResult('bangs', data)
+      })
+    },
+
+    fn: function (text) {
+      /* disabled in focus mode */
+      if (focusMode.enabled()) {
+        focusMode.warn()
+        return
+      }
+
+      // use the first search result
+      // if there is no search text or no result, need to create a new task
+      let task = searchAndSortTasks(text)[0]?.task
+      if (!text || !task) {
+        task = tasks.get(tasks.add(undefined, tasks.getIndex(tasks.getSelected().id) + 1))
+        task.name = text
+      }
+
+      moveToTaskCommand(task.id)
+      return switchToTaskCommand(task.id)
+    }
+
+  })
+
+  bangsPlugin.registerCustomBang({
     phrase: '!task',
     snippet: l('switchToTask'),
     isAction: false,

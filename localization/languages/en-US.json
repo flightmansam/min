@@ -46,6 +46,7 @@
     "createTask": "Create a Task",
     "closeTask": "Close a Task",
     "moveToTask": "Move this tab to a task",
+    "moveToTaskFollow": "Move this tab to a task, and then switch to that task.",
     "nameTask": "Name this task",
     "addBookmark": "Add bookmark",
     "searchBookmarks": "Search bookmarks",

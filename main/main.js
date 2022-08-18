@@ -359,6 +359,11 @@ app.on('ready', function () {
       sendIPCToWindow(mainWindow, 'addTab', {
         url: global.URLToOpen
       })
+
+      setTimeout(function () {
+        sendIPCToWindow(mainWindow, 'showTaskMover');
+      }, 500);
+
       global.URLToOpen = null
     }
 
@@ -388,6 +393,11 @@ function registerMacListeners() {
       sendIPCToWindow(mainWindow, 'addTab', {
         url: url
       })
+
+      setTimeout(function () {
+        sendIPCToWindow(mainWindow, 'showTaskMover');
+      }, 500);
+
     } else {
       global.URLToOpen = url // this will be handled later in the createWindow callback
     }
@@ -413,6 +423,11 @@ function registerMacListeners() {
         sendIPCToWindow(mainWindow, 'addTab', {
           url: 'file://' + path.resolve(file)
         })
+
+        setTimeout(function () {
+          sendIPCToWindow(mainWindow, 'showTaskMover');
+        }, 500);
+
       } else {
         global.URLToOpen = 'file://' + path.resolve(file)
       }
