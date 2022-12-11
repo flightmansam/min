@@ -318,7 +318,14 @@ var TaskOverlayBuilder = {
 
         el.setAttribute('data-tab', tab.id)
 
-        el.addEventListener('click', events.tabSelect)
+        el.addEventListener('click', function (e) {
+          console.log(events)
+          if (e.ctrlKey || e.metaKey) {
+            events.tabDelete(tab.id)
+          } else {
+            events.tabSelect()
+          }
+        })
         return el
       },
 
