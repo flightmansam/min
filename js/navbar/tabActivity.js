@@ -3,7 +3,7 @@
 var tabBar = require('navbar/tabBar.js')
 
 var tabActivity = {
-  minFadeAge: 330000,
+  minFadeAge: 900000, //15 minutes
   refreshInterval: 7500,
   tabSelected: function() {
       var selected = tabs.getSelected()
@@ -45,9 +45,13 @@ var tabActivity = {
     })
   },
   initialize: function () {
-    setInterval(tabActivity.refresh, this.refreshInterval)
+    setInterval(tabActivity.refresh, tabActivity.refreshInterval)
 
-    tasks.on('tab-selected', this.tabSelected)
+    tasks.on('tab-selected', tabActivity.tabSelected)
+    tasks.on('task-selected', function () { 
+      tabActivity.refresh()
+      tabActivity.tabSelected()
+    })
   }
 }
 
