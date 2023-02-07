@@ -140,6 +140,7 @@ var taskOverlay = {
     tasks.forEach(function (task, index) {
       const el = createTaskContainer(task, index, {
         tabSelect: function () {
+          console.log(this)
           browserUI.switchToTask(task.id)
           browserUI.switchToTab(this.getAttribute('data-tab'))
 

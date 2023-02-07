@@ -314,15 +314,16 @@ var TaskOverlayBuilder = {
           data.secondaryText = urlParser.basicURL(source)
         }
 
-        var el = searchbarUtils.createItem(data)
+        var el = searchbarUtils.z(data)
 
         el.setAttribute('data-tab', tab.id)
 
         el.addEventListener('click', function (e) {
-          console.log(events)
           if (e.ctrlKey || e.metaKey) {
-            events.tabDelete(tab.id)
+            console.log("meta")
+            // events.tabDelete(tab.id)
           } else {
+            console.log("not meta")
             events.tabSelect()
           }
         })
