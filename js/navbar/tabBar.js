@@ -105,27 +105,7 @@ const tabBar = {
       }
     })
 
-    tabEl.addEventListener('wheel', function (e) {
-      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
-        // https://github.com/minbrowser/min/issues/698
-        return
-      }
-      if (e.deltaY > 65 && e.deltaX < 10 && Date.now() - lastTabDeletion > 900) { // swipe up to delete tabs
-        lastTabDeletion = Date.now()
 
-        /* tab deletion is disabled in focus mode */
-        if (focusMode.enabled()) {
-          focusMode.warn()
-          return
-        }
-
-        this.style.transform = 'translateY(-100%)'
-
-        setTimeout(function () {
-          tabBar.events.emit('tab-closed', data.id)
-        }, 150) // wait until the animation has completed
-      }
-    })
 
     tabBar.updateTab(data.id, tabEl)
 
