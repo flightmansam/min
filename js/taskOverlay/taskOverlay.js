@@ -139,9 +139,10 @@ var taskOverlay = {
     // show the task elements
     tasks.forEach(function (task, index) {
       const el = createTaskContainer(task, index, {
-        tabSelect: function () {
+        tabSelect: function (item) {
+          var tabId = item.getAttribute('data-tab')
           browserUI.switchToTask(task.id)
-          browserUI.switchToTab(this.getAttribute('data-tab'))
+          browserUI.switchToTab(tabId)
 
           taskOverlay.hide()
         },
@@ -160,6 +161,8 @@ var taskOverlay = {
             // close the task
             browserUI.closeTask(task.id)
           }
+
+          taskOverlay.render()
         }
       })
 
