@@ -304,8 +304,9 @@ function initialize () {
       // if there is no search text or no result, need to create a new task
       let task = searchAndSortTasks(text)[0]?.task
       if (!text || !task) {
-        task = tasks.get(tasks.add(undefined, tasks.getIndex(tasks.getSelected().id) + 1))
-        task.name = text
+        task = tasks.get(tasks.add({
+          name: text
+        }, tasks.getIndex(tasks.getSelected().id) + 1))
       }
 
       moveToTaskCommand(task.id)
@@ -370,6 +371,13 @@ function initialize () {
       }
 
       browserUI.switchToTask(tasks.getSelected().id)
+
+      // taskOverlay.show()
+
+      // setTimeout(function () {
+      //   browserUI.addTask()
+      //   if (text) {
+      //     tasks.update(tasks.getSelected().id, {name: text})
     }
   })
 
@@ -462,8 +470,7 @@ function initialize () {
     snippet: l('nameTask'),
     isAction: false,
     fn: function (text) {
-      tasks.getSelected().name = text
-      taskNameDisplay.update()
+      tasks.update(tasks.getSelected().id, {name: text})
     }
   })
 

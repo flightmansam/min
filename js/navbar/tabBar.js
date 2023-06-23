@@ -65,11 +65,6 @@ const tabBar = {
       iconArea.appendChild(pbIcon)
     }
 
-    var secIcon = document.createElement('i')
-    secIcon.className = 'icon-tab-not-secure tab-icon tab-info-icon i carbon:unlocked'
-    secIcon.title = l('connectionNotSecure')
-    iconArea.appendChild(secIcon)
-
     var closeTabButton = document.createElement('button')
     closeTabButton.className = 'tab-icon tab-close-button i carbon:close'
 
@@ -146,11 +141,16 @@ const tabBar = {
       tabEl.insertBefore(button, tabEl.children[0])
     })
 
-    var secIcon = tabEl.getElementsByClassName('icon-tab-not-secure')[0]
-    if (tabData.secure === false) {
-      secIcon.hidden = false
-    } else {
-      secIcon.hidden = true
+    var iconArea = tabEl.getElementsByClassName('tab-icon-area')[0]
+
+    var insecureIcon = tabEl.getElementsByClassName('icon-tab-not-secure')[0]
+    if (tabData.secure === true && insecureIcon) {
+      insecureIcon.remove()
+    } else if (tabData.secure === false && !insecureIcon) {
+      var insecureIcon = document.createElement('i')
+      insecureIcon.className = 'icon-tab-not-secure tab-icon tab-info-icon i carbon:unlocked'
+      insecureIcon.title = l('connectionNotSecure')
+      iconArea.appendChild(insecureIcon)
     }
   },
   updateAll: function () {
@@ -248,7 +248,9 @@ tasks.on('tab-updated', function (id, key) {
 })
 
 permissionRequests.onChange(function (tabId) {
-  tabBar.updateTab(tabId)
+  if (tabs.get(tabId)) {
+    tabBar.updateTab(tabId)
+  }
 })
 
 tabBar.initializeTabDragging()

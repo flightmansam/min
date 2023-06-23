@@ -152,7 +152,7 @@
     "settingsDarkModeNever": "禁用",
     "settingsDarkModeNight": "只在夜晚开启",
     "settingsDarkModeAlways": "一直开启",
-    "settingsDarkModeSystem": null,
+    "settingsDarkModeSystem": "跟随系统主题",
     "settingsSiteThemeToggle": "启用网站主题",
     "settingsAdditionalFeaturesHeading": "其他功能",
     "settingsUserscriptsToggle": "允许自定义脚本",
@@ -191,6 +191,7 @@
     "appMenuDuplicateTab": "复制标签页",
     "appMenuNewPrivateTab": "新的隐私标签页",
     "appMenuNewTask": "新标签组",
+    "appMenuNewWindow": null, //missing translation
     "appMenuSavePageAs": "页面另存为",
     "appMenuPrint": "打印",
     "appMenuEdit": "编辑",
