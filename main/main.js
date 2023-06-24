@@ -135,28 +135,28 @@ function handleCommandLineArguments (argv) {
       if (arg && arg.toLowerCase() !== __dirname.toLowerCase()) {
         if (arg.indexOf('://') !== -1) {
           // URL
-          sendIPCToWindow(mainWindow, 'addTab', {
+          sendIPCToWindow(windows.getCurrent(), 'addTab', {
             url: arg,
             taskQuery: initTaskQuery
           })
         } else if (idx > 0 && argv[idx - 1] === '-s') {
           // search
-          sendIPCToWindow(mainWindow, 'addTab', {
+          sendIPCToWindow(windows.getCurrent(), 'addTab', {
             url: arg,
             taskQuery: initTaskQuery
           })
         } else if (/\.(min)$/.test(arg) && fs.existsSync(arg)) {
-          sendIPCToWindow(mainWindow, 'openTaskFile', {
+          sendIPCToWindow(windows.getCurrent(), 'openTaskFile', {
             filePath: path.resolve(arg) // TODO: need to test on windows, linux
           })
         } else if (/\.(m?ht(ml)?|pdf)$/.test(arg) && fs.existsSync(arg)) {
           // local files (.html, .mht, mhtml, .pdf)
-          sendIPCToWindow(mainWindow, 'addTab', {
+          sendIPCToWindow(windows.getCurrent(), 'addTab', {
             url: 'file://' + path.resolve(arg),
             taskQuery: initTaskQuery
           })
         } else if (initTaskQuery) {
-          sendIPCToWindow(mainWindow, 'switchToTask', {
+          sendIPCToWindow(windows.getCurrent(), 'switchToTask', {
             taskQuery: initTaskQuery
           })
         }
@@ -361,7 +361,7 @@ app.on('ready', function () {
       })
 
       setTimeout(function () {
-        sendIPCToWindow(mainWindow, 'showTaskMover');
+        sendIPCToWindow(newWin, 'showTaskMover');
       }, 500);
 
       global.URLToOpen = null
@@ -370,7 +370,7 @@ app.on('ready', function () {
     // there is a FILE from an "open-file" event (on Mac)
     if (global.TaskToOpen) {
       // if there is a previously set FILE to open (probably from opening a link on macOS), open it
-      sendIPCToWindow(mainWindow, 'openTaskFile', {
+      sendIPCToWindow(newWin, 'openTaskFile', {
         filePath: global.TaskToOpen 
       })
       global.TaskToOpen = null
@@ -390,12 +390,12 @@ function registerMacListeners() {
   
   app.on('open-url', function (event, url) {
     if (appIsReady) {
-      sendIPCToWindow(mainWindow, 'addTab', {
+      sendIPCToWindow(windows.getCurrent(), 'addTab', {
         url: url
       })
 
       setTimeout(function () {
-        sendIPCToWindow(mainWindow, 'showTaskMover');
+        sendIPCToWindow(windows.getCurrent(), 'showTaskMover');
       }, 500);
 
     } else {
@@ -411,7 +411,7 @@ function registerMacListeners() {
     /* mac only, for windows see handleCommandLineArguments() */
     if (/\.(min)$/.test(file.toLowerCase()) && fs.existsSync(file)) {
       if (appIsReady) {
-        sendIPCToWindow(mainWindow, 'openTaskFile', {
+        sendIPCToWindow(windows.getCurrent(), 'openTaskFile', {
           filePath: file // TODO: need to test on windows, linux
         })
       } else {
@@ -420,12 +420,12 @@ function registerMacListeners() {
     } else if (/\.(m?ht(ml)?|pdf)$/.test(file.toLowerCase()) && fs.existsSync(file)) {
       // local files (.html, .mht, mhtml, .pdf)
       if (appIsReady) {
-        sendIPCToWindow(mainWindow, 'addTab', {
+        sendIPCToWindow(windows.getCurrent(), 'addTab', {
           url: 'file://' + path.resolve(file)
         })
 
         setTimeout(function () {
-          sendIPCToWindow(mainWindow, 'showTaskMover');
+          sendIPCToWindow(windows.getCurrent(), 'showTaskMover');
         }, 500);
 
       } else {
@@ -436,16 +436,6 @@ function registerMacListeners() {
     }       
   })
 }
-
-// handoff support for macOS
-app.on('continue-activity', function(e, type, userInfo, details) {
-  if (type === 'NSUserActivityTypeBrowsingWeb' && details.webpageURL) {
-    e.preventDefault()
-    sendIPCToWindow(mainWindow, 'addTab', {
-      url: details.webpageURL
-    })
-  }
-})
 
 // handoff support for macOS
 app.on('continue-activity', function(e, type, userInfo, details) {
