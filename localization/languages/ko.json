@@ -172,6 +172,9 @@
     "settingsStartupCreateTask": "마지막 작업 열기",
     "settingsStartupNewTaskandBackground": "마지막 작업을 백그라운드로 이동",
     "settingsStartupNewTaskOnly": "새 작업장 열기",
+    "settingsNewWindowOptions": "새 창에서: ",
+    "settingsNewWindowCreateTask": "새 작업장 만들기",
+    "settingsNewWindowPickTask": "작업장 목록 표시",
     "settingsSearchEngineHeading": "검색 도구",
     "settingsDefaultSearchEngine": "기본 검색 도구:",
     "settingsDDGExplanation": "덕덕고(DuckDuckGo)를 기본 검색 도구로 설정하여 검색 창에서 바로 검색해 보세요.",
@@ -232,6 +235,7 @@
     "appMenuQuit": "%n 종료",
     "appMenuBringToFront": "맨 앞으로",
     /* PDF Viewer */
+    "PDFInvertPage": null, //missing translation
     "PDFPageCounter": {
       "unsafeHTML": "전체 <span id='total'></span> 쪽 중 <input type='text'/> 쪽"
     },

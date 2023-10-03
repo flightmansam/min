@@ -172,6 +172,9 @@
     "settingsStartupCreateTask": "Önceki sekmeleri yeniden aç",
     "settingsStartupNewTaskandBackground": "Önceki sekmeleri arka plan görevine taşı",
     "settingsStartupNewTaskOnly": "Yeni bir boş görev aç",
+    "settingsNewWindowOptions": null, //missing translation
+    "settingsNewWindowCreateTask": null, //missing translation
+    "settingsNewWindowPickTask": null, //missing translation
     "settingsSearchEngineHeading": "Arama Motoru",
     "settingsDefaultSearchEngine": "Bir varsayılan arama motoru seçin:",
     "settingsDDGExplanation": "Arama çubuğundaki anlık yanıtları görmek için DuckDuckGo’yu varsayılan arama motoru olarak ayarlayın.",
@@ -191,7 +194,7 @@
     "appMenuDuplicateTab": "Sekmeyi Çoğalt",
     "appMenuNewPrivateTab": "Yeni Özel Sekme",
     "appMenuNewTask": "Yeni Görev",
-    "appMenuNewWindow": null, //missing translation
+    "appMenuNewWindow": "Yeni Pencere",
     "appMenuSavePageAs": "Sayfayı Farklı Kaydet",
     "appMenuPrint": "Yazdır",
     "appMenuEdit": "Düzenle",
@@ -232,6 +235,7 @@
     "appMenuQuit": "%n Çıkış",
     "appMenuBringToFront": "Tümünü Öne Getir",
     /* PDF Viewer */
+    "PDFInvertPage": null, //missing translation
     "PDFPageCounter": {
       "unsafeHTML": "<span id='total'></span> sayfanın <input type='text'/> i"
     },

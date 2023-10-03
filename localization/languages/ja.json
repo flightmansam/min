@@ -172,6 +172,9 @@
     "settingsStartupCreateTask": null, //missing translation
     "settingsStartupNewTaskandBackground": null, //missing translation
     "settingsStartupNewTaskOnly": null, //missing translation
+    "settingsNewWindowOptions": null, //missing translation
+    "settingsNewWindowCreateTask": null, //missing translation
+    "settingsNewWindowPickTask": null, //missing translation
     "settingsSearchEngineHeading": "検索エンジン",
     "settingsDefaultSearchEngine": "デフォルトの検索エンジン:",
     "settingsDDGExplanation": "検索バーにインスタントアンサーを表示するには、DuckDuckGoをデフォルトの検索エンジンに設定してください。",
@@ -232,6 +235,7 @@
     "appMenuQuit": "%nを終了",
     "appMenuBringToFront": "すべてを最前面に移動",
     /* PDF Viewer */
+    "PDFInvertPage": null, //missing translation
     "PDFPageCounter": {
       "unsafeHTML": "<span id='total'></span> ページ中 <input type='text'/> ページ目"
     },

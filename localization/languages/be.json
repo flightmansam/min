@@ -172,6 +172,9 @@
     "settingsStartupCreateTask": null, //missing translation
     "settingsStartupNewTaskandBackground": null, //missing translation
     "settingsStartupNewTaskOnly": null, //missing translation
+    "settingsNewWindowOptions": null, //missing translation
+    "settingsNewWindowCreateTask": null, //missing translation
+    "settingsNewWindowPickTask": null, //missing translation
     "settingsSearchEngineHeading": "Пошукавік",
       "settingsDefaultSearchEngine": "Выберыце пошукавую сістэму па змаўчанні:",
       "settingsDDGExplanation": "Каб бачыць імгненныя адказы ў радку пошуку, усталюйце DuckDuckGo пошукавікам па змаўчанні.",
@@ -232,7 +235,8 @@
       "appMenuQuit": "Выйсці з %n",
       "appMenuBringToFront": "Перамясціць усё на пярэдні план",
       /* PDF Viewer */
-      "PDFPageCounter": {
+      "PDFInvertPage": null, //missing translation
+    "PDFPageCounter": {
         "unsafeHTML": "старонка <input type='text'/> з <span id='total'></span>"
       },
       /* Context Reader */
